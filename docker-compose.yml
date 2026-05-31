@@ -1,0 +1,70 @@
+services:
+    laravel:
+        container_name: formato_db_sader
+        build:
+            dockerfile: Dockerfile  # Usa el Dockerfile personalizado
+            context: .
+        restart: unless-stopped
+        extra_hosts:
+            # Permite acceso al host desde el contenedor
+            - 'host.docker.internal:host-gateway'
+        ports:
+            - '8040:80'
+            - '${VITE_PORT:-5173}:${VITE_PORT:-5173}'
+        environment:
+            LARAVEL: 1
+            IGNITION_LOCAL_SITES_PATH: '${PWD}'
+            #XDEBUG_MODE: debug,develop # Habilita los modos de Xdebug
+            #XDEBUG_CONFIG: "client_host=host.docker.internal" # Configura el host del cliente Xdebug
+        volumes:
+            - '.:/var/www/html'
+        depends_on:
+            redis:
+                condition: service_started
+        networks:
+            - formato_db_sader_network
+        # Otorga al contenedor capacidades adicionales de administración de red en el kernel de Linux
+        cap_add:
+            - NET_ADMIN
+    redis:
+        container_name: formato_db_sader_redis
+        image: 'redis:7.4-alpine'
+        restart: unless-stopped
+        ports:
+            # Puerto interno expuesto (no mapeado al host)
+            - "6379"
+        command: [
+            "redis-server",
+            "--save", "20", "1",
+            "--loglevel", "warning",
+            "--requirepass", "secret"
+        ]
+        volumes:
+            - 'formato_db_sader_redis_volumen:/data'
+        networks:
+            - formato_db_sader_network
+    postgres:
+        container_name: formato_db_sader_postgres
+        image: 'postgres:16-alpine'
+        restart: unless-stopped
+        ports:
+            # Puerto 5432 mapeado directamente al host
+            - '5435:5432'
+        environment:
+            POSTGRES_DB: formato_db_sader
+            POSTGRES_USER: postgres
+            POSTGRES_PASSWORD: secret
+        volumes:
+            - 'formato_db_sader_postgres_volumen:/var/lib/postgresql/data'
+        networks:
+            - formato_db_sader_network
+# Red personalizada para comunicación entre contenedores
+networks:
+    formato_db_sader_network:
+        driver: bridge
+# Volúmenes persistentes para datos
+volumes:
+    formato_db_sader_redis_volumen:
+        driver: local
+    formato_db_sader_postgres_volumen:
+        driver: local

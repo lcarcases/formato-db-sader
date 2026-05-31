@@ -1,0 +1,13 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app/
+        #- config/
+        #- database/
+        #- routes/
+        #- tests/
+
+    # Level 10 is the strictest; start with a lower level if adding to an existing project
+    level: 5
