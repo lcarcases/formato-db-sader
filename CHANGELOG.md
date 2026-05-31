@@ -2,6 +2,72 @@
 
 ## [Unreleased](https://github.com/laravel/laravel/compare/v13.1.2...13.x)
 
+### Added - 2026-05-17
+
+####  Obtener Catálogo de Tipos de Personal (Feature #001)
+- **Endpoint**: `GET /api/v1/admin/tipos-personal`
+- **Description**: REST endpoint para obtener el catálogo completo de tipos de personal activos en SADER
+- **Architecture**: Hexagonal (Ports & Adapters) con Domain-Driven Design (DDD)
+- **Performance**: Response time p95 <500ms
+- **Rate Limiting**: 60 requests/minute per IP
+- **Bounded Context**: Admin - Catálogos administrativos
+
+**Database**:
+- Nueva tabla `tb_cat_tipo_personal` con 4 tipos de personal:
+  - Base (ID: 1)
+  - Enlace (ID: 2)
+  - Confianza (ID: 3)
+  - Externo (ID: 4)
+- Migration: `2026_05_16_205440_create_tb_cat_tipo_personal_table.php`
+- Seed migration: `2026_05_16_205525_seed_tb_cat_tipo_personal_table.php`
+
+**Domain Layer** (Zero Laravel dependencies):
+- `TipoPersonal` entity con validación de invariantes
+- `TipoPersonalNotFoundException` domain exception
+
+**Application Layer**:
+- `ObtenerTiposPersonalUseCase` con structured logging
+- `ITipoPersonalOutPort` interface (outbound port)
+- `TipoPersonalOutDto` y `ObtenerTiposPersonalOutDto` DTOs
+
+**Infrastructure Layer**:
+- `ObtenerTiposPersonalInAdapter` (API controller)
+- `TipoPersonalPostgresSQLOutAdapter` (repository adapter)
+- `TipoPersonalPostgresSQLRepository` usando Query Builder
+- `TipoPersonalEloquentModel` para mapeo de tabla
+- Named route: `api.admin.tipos-personal.index`
+
+**Testing**:
+- 15 unit tests para `TipoPersonal` entity (100% pass)
+- 5 unit tests para `ObtenerTiposPersonalUseCase` (100% pass)
+- 10 integration tests para repository
+- 10 API contract tests (feature tests)
+
+**Quality**:
+- PHPStan Level 9 compliant
+- PSR-12 formatted (Laravel Pint)
+- OpenAPI 3.0 specification documented
+
+**Structured Logging**:
+- request_id (UUID)
+- action: ObtenerTiposPersonal
+- result: success|error
+- user_ip: Client IP address
+- timestamp: ISO 8601 format
+- duration_ms: Execution time in milliseconds
+- records_count: Number of tipos personal returned (on success)
+- error, error_class: Exception details (on failure)
+
+**Files Modified** (22 files):
+- Created: 18 new files (migrations, domain, application, infrastructure, tests)
+- Modified: 4 existing files (routes, service provider, research.md, tasks.md)
+
+**References**:
+- Spec: `specs/001-catalogo-tipos-personal/spec.md`
+- Plan: `specs/001-catalogo-tipos-personal/plan.md`
+- OpenAPI: `specs/001-catalogo-tipos-personal/contracts/api-tipos-personal.yaml`
+- Branch: `001-catalogo-tipos-personal`
+
 ## [v13.1.2](https://github.com/laravel/laravel/compare/v13.1.1...v13.1.2) - 2026-03-31
 
 * Prevents installed package from executing malicious code via `postinstall` by [@crynobone](https://github.com/crynobone) in https://github.com/laravel/laravel/pull/6777

@@ -1,53 +1,273 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SADER Database Access Permissions API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Internal REST API system for managing database access permissions within SADER (Secretaría de
+Agricultura y Desarrollo Rural), a Mexican government institution.
 
-## About Laravel
+## Project Overview
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Purpose**: Manage database access permissions, user roles, and audit access control within
+SADER's infrastructure.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Architecture**: Hexagonal Architecture (Ports & Adapters) with Domain-Driven Design (DDD)
+principles.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Scope**: Backend REST API only—no frontend, SSR, Blade templates, Livewire, or SPA.
 
-## Learning Laravel
+## Technical Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **PHP**: 8.4+
+- **Framework**: Laravel 13.x (infrastructure layer only)
+- **Database**: PostgreSQL 16.x (system of record)
+- **Cache**: Redis 7.4.x (cache only, not source of truth)
+- **Quality**: PHPStan Level 9, PSR-12 (Laravel Pint)
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Architecture Principles
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+This project strictly follows:
 
-## Agentic Development
+1. **Hexagonal Architecture**: Domain core isolated from infrastructure
+2. **Domain-Driven Design**: Aggregates, entities, value objects, ubiquitous language
+3. **Domain Isolation**: Zero Laravel dependencies in domain layer
+4. **Test-First**: Mandatory unit, integration, and contract tests
+5. **SOLID Principles**: Clean code, explicit contracts, immutability
+6. **API-First**: RESTful JSON endpoints with OpenAPI documentation
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+**Read the full constitution**: `.specify/memory/constitution.md`
 
-```bash
-composer require laravel/boost --dev
+## Project Structure
 
-php artisan boost:install
+```
+app/Core/{BoundedContext}/
+├── Domain/               # Pure PHP domain logic (framework-agnostic)
+│   ├── Entities/        # Domain entities with behavior
+│   ├── ValueObjects/    # Immutable value objects
+│   ├── Events/          # Domain events
+│   └── Exceptions/      # Domain-specific exceptions
+├── Application/          # Use cases and application services
+│   ├── UseCases/        # Application service implementations
+│   ├── DTOs/            # Input/Output data transfer objects
+│   └── Ports/
+│       ├── In/          # Inbound ports (use case interfaces)
+│       └── Out/         # Outbound ports (repository interfaces)
+└── Infrastructure/       # Laravel-specific adapters
+    └── Adapters/
+        ├── In/
+        │   └── Api/     # HTTP controllers, requests, resources
+        └── Out/
+            └── Persistence/  # Eloquent models, repository implementations
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+**Dependency Direction** (ENFORCED):
+```
+Infrastructure → Application → Domain
+```
+
+Domain NEVER depends on Laravel. Infrastructure adapters implement application ports.
+
+## Getting Started
+
+### Prerequisites
+
+- Docker & Docker Compose
+- PHP 8.4+ (local development)
+- Composer 2.x
+- PostgreSQL 16.x (via Docker)
+- Redis 7.4.x (via Docker)
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd formato-db-sader
+   ```
+
+2. **Install dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Environment configuration**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+   Configure database and Redis connections in `.env`:
+   ```env
+   DB_CONNECTION=pgsql
+   DB_HOST=postgres
+   DB_PORT=5432
+   DB_DATABASE=sader_permissions
+   DB_USERNAME=your_user
+   DB_PASSWORD=your_password
+
+   REDIS_HOST=redis
+   REDIS_PASSWORD=null
+   REDIS_PORT=6379
+   ```
+
+4. **Start Docker services**
+   ```bash
+   docker-compose up -d
+   ```
+
+5. **Run migrations**
+   ```bash
+   php artisan migrate
+   ```
+
+6. **Seed database (optional)**
+   ```bash
+   php artisan db:seed
+   ```
+
+### Running Tests
+
+```bash
+# Run all tests
+./vendor/bin/phpunit
+
+# Run specific test suite
+./vendor/bin/phpunit --testsuite Unit
+./vendor/bin/phpunit --testsuite Feature
+
+# Run with coverage
+./vendor/bin/phpunit --coverage-html coverage/
+```
+
+### Code Quality
+
+```bash
+# Static analysis (PHPStan level 9)
+./vendor/bin/phpstan analyse
+
+# Code formatting (PSR-12)
+./vendor/bin/pint
+
+# Check formatting without changes
+./vendor/bin/pint --test
+```
+
+## Development Workflow
+
+### Implementing New Features
+
+**IMPORTANT**: All use case implementations MUST use the `Hexagonal Architecture Specialist`
+agent to ensure proper architectural compliance.
+
+1. **Create feature specification**
+   ```
+   /speckit.specify [feature description]
+   ```
+
+2. **Create implementation plan**
+   ```
+   /speckit.plan
+   ```
+
+3. **Generate tasks**
+   ```
+   /speckit.tasks
+   ```
+
+4. **Implement use case with hexagonal architecture**
+   ```
+   @Hexagonal Architecture Specialist implement [use case description]
+   ```
+
+### Layer Responsibilities
+
+- **Domain Layer**: Business rules, entities, value objects, domain services. Pure PHP only.
+- **Application Layer**: Use cases (orchestration), DTOs, port interfaces. Framework-agnostic.
+- **Infrastructure Layer**: Controllers, Eloquent models, repositories, external services.
+  Laravel-specific code lives here.
+
+### Testing Requirements
+
+- **Unit Tests**: All domain entities, value objects, and application use cases
+- **Integration Tests**: Repository implementations, external service adapters
+- **Contract Tests**: API endpoint request/response contracts
+
+**Minimum Coverage**: 80% for domain/application layers, 60% overall.
+
+## API Documentation
+
+API documentation is maintained using OpenAPI 3.x specification.
+
+**Convention**: All endpoints MUST be documented in the OpenAPI spec before implementation.
+
+Example endpoints:
+```
+GET    /api/v1/tipos-requerimiento      # List requirement types
+POST   /api/v1/tipos-requerimiento      # Create requirement type
+GET    /api/v1/tipos-requerimiento/{id} # Get requirement type
+PUT    /api/v1/tipos-requerimiento/{id} # Update requirement type
+DELETE /api/v1/tipos-requerimiento/{id} # Delete requirement type
+```
+
+## Database Conventions
+
+- **Tables**: `tb_{context}_{entity}` (e.g., `tb_cat_tipo_requerimiento`)
+- **Columns**: snake_case, use Spanish domain terms where appropriate
+- **Foreign Keys**: `fk_{table}_{referenced_table}_{column}`
+- **Indexes**: `idx_{table}_{columns}`
+- **Audit Fields**: All tables include `created_at`, `updated_at`, `created_by_user_id`,
+  `updated_by_user_id`
+
+## Security
+
+- **Authentication**: Laravel Sanctum (API tokens)
+- **Authorization**: Role-Based Access Control (RBAC)
+- **Audit Logging**: All permission grants/revocations logged with user, timestamp, IP
+- **Secrets**: All credentials via environment variables (never in code)
+- **Input Validation**: Form Requests at HTTP layer, invariants in domain
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Pull Request Requirements
 
-## Code of Conduct
+- [ ] Hexagonal Architecture principles respected
+- [ ] Tests included and passing (unit, integration, contract)
+- [ ] PHPStan level 9 passing
+- [ ] Laravel Pint formatting applied
+- [ ] API OpenAPI spec updated (if API changes)
+- [ ] Domain language consistency maintained
+- [ ] No Laravel dependencies in domain layer
+- [ ] Conventional Commits message format
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+### Code Review Checklist
+
+Reviewers MUST verify:
+- Domain isolation (no framework leakage)
+- Dependency direction correctness
+- Repository abstractions used (no Eloquent in use cases)
+- Test coverage adequate  - Error handling follows exception hierarchy
+- Logging includes appropriate context
+
+See `.specify/memory/constitution.md` for complete governance rules.
+
+## Project Governance
+
+Development is governed by the **Project Constitution** at `.specify/memory/constitution.md`
+(v1.0.0). All contributors MUST comply with constitutional principles and standards.
+
+The constitution defines:
+- Architectural mandates
+- Design principles
+- Code quality standards
+- Testing requirements
+- Security requirements
+- Forbidden practices
+- Definition of Done
+
+## License
+
+[Specify License]
+
+## Contact
+
+For questions or issues, contact [SADER IT Team Contact Information]
 
 ## Security Vulnerabilities
 

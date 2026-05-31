@@ -1,0 +1,1 @@
+Dado que soy un trabajador de la DGTIC en la Sader, durante el proceso de llenado del formato de base de datos quiero poder seleccionar el tipo de permiso (Consulta, Cambios, Eliminación, Consulta y Cambios) que voy a solicitar para una base de datos en específico.

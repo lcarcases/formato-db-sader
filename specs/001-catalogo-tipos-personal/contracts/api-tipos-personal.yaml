@@ -1,0 +1,177 @@
+openapi: 3.0.3
+info:
+  title: SADER - Catálogo de Tipos de Personal API
+  version: 1.0.0
+  description: |
+    Endpoint REST para obtener el catálogo de tipos de personal activos en SADER.
+    Tipos disponibles: Base, Enlace, Confianza, Externo.
+    
+    **Rate Limiting**: 60 requests per minute per IP address
+    **Authentication**: None (public endpoint)
+    **CORS**: All origins allowed (*)
+
+servers:
+  - url: http://localhost/api/v1
+    description: Local development
+  - url: https://api.sader.gob.mx/api/v1
+    description: Production
+
+paths:
+  /admin/tipos-personal:
+    get:
+      summary: Obtener catálogo de tipos de personal activos
+      description: |
+        Retorna lista de tipos de personal disponibles para selección en formularios.
+        Solo retorna tipos con estado activo = true, ordenados por ID ascendente.
+      operationId: obtenerTiposPersonal
+      tags:
+        - Admin - Catálogos
+      responses:
+        '200':
+          description: Catálogo obtenido exitosamente (puede estar vacío)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: "*"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObtenerTiposPersonalSuccessResponse'
+              examples:
+                successWith4Types:
+                  summary: Respuesta exitosa con 4 tipos
+                  value:
+                    success: true
+                    message: "Tipos de personal obtenidos exitosamente"
+                    code: 200
+                    data:
+                      - id: 1
+                        nombre: "Base"
+                      - id: 2
+                        nombre: "Enlace"
+                      - id: 3
+                        nombre: "Confianza"
+                      - id: 4
+                        nombre: "Externo"
+                successEmpty:
+                  summary: Respuesta exitosa sin tipos activos
+                  value:
+                    success: true
+                    message: "No hay tipos de personal activos"
+                    code: 200
+                    data: []
+        '429':
+          description: Rate limit excedido (más de 60 solicitudes por minuto)
+          headers:
+            Retry-After:
+              schema:
+                type: integer
+                example: 42
+              description: Segundos hasta que el límite se resetee
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: "Too many requests. Please try again later."
+                code: 429
+                data: null
+        '500':
+          description: Error de infraestructura (base de datos no disponible, timeout, etc.)
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: application/json
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                success: false
+                message: "Database connection error"
+                code: 500
+                data: null
+
+components:
+  schemas:
+    ObtenerTiposPersonalSuccessResponse:
+      type: object
+      required:
+        - success
+        - message
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+          example: true
+          description: Indica si la operación fue exitosa
+        message:
+          type: string
+          example: "Tipos de personal obtenidos exitosamente"
+          description: Mensaje descriptivo de la operación
+        code:
+          type: integer
+          example: 200
+          description: Código HTTP de la respuesta
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TipoPersonalItem'
+          description: Array de tipos de personal activos (puede estar vacío)
+    
+    TipoPersonalItem:
+      type: object
+      required:
+        - id
+        - nombre
+      properties:
+        id:
+          type: integer
+          example: 1
+          description: Identificador único del tipo de personal
+        nombre:
+          type: string
+          example: "Base"
+          enum: ["Base", "Enlace", "Confianza", "Externo"]
+          description: Nombre del tipo de personal
+    
+    ErrorResponse:
+      type: object
+      required:
+        - success
+        - message
+        - code
+        - data
+      properties:
+        success:
+          type: boolean
+          example: false
+          description: Indica que la operación falló
+        message:
+          type: string
+          example: "Database connection error"
+          description: Mensaje de error descriptivo
+        code:
+          type: integer
+          example: 500
+          description: Código HTTP del error
+        data:
+          type: "null"
+          example: null
+          description: Siempre null en errores
+
+tags:
+  - name: Admin - Catálogos
+    description: Endpoints para consultar catálogos administrativos

@@ -1,0 +1,1 @@
+Dado que soy un trabajador de la DGTIC en la Sader, durante el proceso de llenado del formato de BD quiero poder seleccionar el tipo de personal al que pertenezco (Base, Enlace, Confianza y Externo )
