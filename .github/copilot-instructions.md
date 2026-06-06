@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan at:
-specs/001-catalogo-tipos-personal/plan.md
+specs/002-catalogo-tipos-permiso/plan.md
 <!-- SPECKIT END -->
 
 # SADER Database Access Permissions API - Development Guidelines
