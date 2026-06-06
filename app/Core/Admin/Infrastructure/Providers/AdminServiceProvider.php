@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Admin\Infrastructure\Providers;
 
+use App\Core\Admin\Application\Ports\Out\ITipoPermisoOutPort;
 use App\Core\Admin\Application\Ports\Out\ITipoPersonalOutPort;
 use App\Core\Admin\Application\Ports\Out\ITipoRequerimientoOutPort;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPermisoPostgresSQLRepository;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPersonalPostgresSQLRepository;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoRequerimientoPostgresSQLRepository;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\TipoPermisoPostgresSQLOutAdapter;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\TipoPersonalPostgresSQLOutAdapter;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\TipoRequerimientoPostgresSQLOutAdapter;
 use Illuminate\Support\ServiceProvider;
@@ -46,10 +49,21 @@ class AdminServiceProvider extends ServiceProvider
             TipoPersonalPostgresSQLOutAdapter::class
         );
 
+        // TipoPermiso bindings
+        $this->app->bind(
+            ITipoPermisoOutPort::class,
+            TipoPermisoPostgresSQLOutAdapter::class
+        );
+
         // Repository bindings (singletons for performance)
         $this->app->singleton(
             TipoPersonalPostgresSQLRepository::class,
             TipoPersonalPostgresSQLRepository::class
+        );
+
+        $this->app->singleton(
+            TipoPermisoPostgresSQLRepository::class,
+            TipoPermisoPostgresSQLRepository::class
         );
 
         $this->app->singleton(

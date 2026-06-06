@@ -53,7 +53,7 @@ final class ObtenerTiposPersonalUseCase
      * Retrieves all active tipos de personal and returns raw data.
      * InAdapter is responsible for:
      * - Logging execution with structured context
-     * - Converting result to response format  
+     * - Converting result to response format
      * - Handling exceptions and error responses
      *
      * @return array<int, \stdClass> Array of tipos de personal (raw data from OutAdapter)

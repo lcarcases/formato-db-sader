@@ -87,8 +87,8 @@ return [
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DB_URL'),
-            'host' => env('DB_HOST_PGSQL', '127.0.0.1'),
-            'port' => env('DB_PORT_PGSQL', '5435'),
+            'host' => env('DB_HOST_PGSQL', 'postgres'),
+            'port' => env('DB_PORT_PGSQL', '5432'),
             'database' => env('DB_DATABASE_PGSQL', 'formato_db_sader'),
             'username' => env('DB_USERNAME_PGSQL', 'postgres'),
             'password' => env('DB_PASSWORD_PGSQL', 'secret'),
