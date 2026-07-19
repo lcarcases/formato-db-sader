@@ -1,0 +1,1 @@
+Dado que soy un trabajador de la DGTIC en la Sader, durante el proceso de llenado del formato de BD quiero poder seleccionar un ambiente de desarrollo en el que se encuentra la BD a la que me quiero conectar y solicitar permiso. Estos ambientes pueden ser Desarrollo, QA ó Producción.

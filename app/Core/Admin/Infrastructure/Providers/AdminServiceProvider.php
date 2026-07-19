@@ -4,9 +4,11 @@ declare(strict_types=1);
 
 namespace App\Core\Admin\Infrastructure\Providers;
 
+use App\Core\Admin\Application\Ports\Out\AmbienteDesarrolloOutPort;
 use App\Core\Admin\Application\Ports\Out\ITipoPermisoOutPort;
 use App\Core\Admin\Application\Ports\Out\ITipoPersonalOutPort;
 use App\Core\Admin\Application\Ports\Out\ITipoRequerimientoOutPort;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\AmbienteDesarrolloOutAdapter;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPermisoPostgresSQLRepository;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPersonalPostgresSQLRepository;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoRequerimientoPostgresSQLRepository;
@@ -36,6 +38,12 @@ class AdminServiceProvider extends ServiceProvider
     public function register(): void
     {
         // ✅ CORRECT: Bind OutPort interface → OutAdapter implementation
+
+        // AmbienteDesarrollo bindings
+        $this->app->bind(
+            AmbienteDesarrolloOutPort::class,
+            AmbienteDesarrolloOutAdapter::class
+        );
 
         // TipoRequerimiento bindings
         $this->app->bind(
