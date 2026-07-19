@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerAmbientesInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPermisoInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPersonalInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposRequerimientosInAdapter;
@@ -34,6 +35,10 @@ Route::prefix('api/v1/admin')->group(function () {
     Route::get('/tipos-permiso', ObtenerTiposPermisoInAdapter::class)
         ->middleware('throttle:60,1')
         ->name('api.admin.tipos-permiso.index');
+
+    // Ambientes de Desarrollo
+    Route::get('/ambientes-desarrollo', ObtenerAmbientesInAdapter::class)
+        ->name('api.admin.ambientes-desarrollo.index');
 
     // Add more admin routes here following the same pattern...
 
