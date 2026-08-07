@@ -1,0 +1,249 @@
+# Arquitectura Hexagonal y Domain Driven Design
+
+## Principios Fundamentales
+
+Este proyecto implementa **Arquitectura Hexagonal** (Puertos y Adaptadores) + **Domain Driven Design (DDD)**.
+
+### Estructura de 3 Capas
+
+```
+┌─────────────────────────────────────────┐
+│   INFRASTRUCTURE (Capa Externa)         │  ← Menos reutilizable
+│   ┌─────────────────────────────────┐   │
+│   │   APPLICATION (Capa Media)      │   │  ← Reutilizable
+│   │   ┌─────────────────────────┐   │   │
+│   │   │   DOMAIN (Capa Interna) │   │   │  ← Más reutilizable
+│   │   └─────────────────────────┘   │   │
+│   └─────────────────────────────────┘   │
+└─────────────────────────────────────────┘
+```
+
+## Reglas de Dependencia
+
+### ✅ PERMITIDO (Dependency Inversion)
+
+| Capa Origen | Puede Invocar |
+|-------------|---------------|
+| **Infrastructure** | Infrastructure + Application + Domain |
+| **Application** | Application + Domain |
+| **Domain** | SOLO Domain |
+
+### ❌ PROHIBIDO
+
+- Domain **NUNCA** invoca Application o Infrastructure
+- Application **NUNCA** invoca Infrastructure
+- Capas internas **NUNCA** dependen de capas externas
+
+### 📊 Reusabilidad por Capa
+
+| Capa | Nivel de Reusabilidad | Ley |
+|------|----------------------|-----|
+| **Domain** | 🟢 Máxima | Escribir MÁXIMA lógica de negocio aquí |
+| **Application** | 🟡 Media | Lógica específica de casos de uso |
+| **Infrastructure** | 🔴 Mínima | Código acoplado a framework/externos |
+
+> **REGLA DE ORO**: Mientras más lógica de negocio escribamos en Domain, mejor → Máxima reusabilidad
+
+---
+
+## Responsabilidades por Capa
+
+**Capa de Infraestructura:** En esta capa se escribe el código que es menos reutilizable, principalmente se escribe código que está acoplado al framework (Laravel) y código cuyo objetivo es interactúar con sistemas externos (Ejemp: MySQL, AWS, Sistema de Archivo, etc).
+
+A continuación describimos algunas de las clases y el tipo de código que radican en esta capa:
+
+**Adaptador de Entrada (In Adapter)**: La principal responsabilidad del código que se escribe en este tipo de clases es recibir la información que viene del javascript y capturó previamente un cliente en una pantalla. También puede ser la información que se envía por GET o POST en la invocación de un endpoint de un API ó la información recibida mediante la ejecución de un comando de consola (CLI). Este tipo de clases actúan como punto de entrada hacía nuestro sistema. Se nombran con el siguiente formato: NombreDeCasoUso + InAdapter + .php (Ejemp: GenerarTramiteInAdapter.php). Este tipo de clases vive en la capa de infraestructura de nuestra Arquitectura Hexagonal.
+
+**Adaptador de salida (OutAdapter)**: La principal responsabilidad del código que se escribe en este tipo de clases es la de interactúar con sistemas externos sobre todo cuando el caso de uso que estamos ejecutando necesita interactúar con dicjos sistemas externos par apoder llevar a cabo con éxito su tarea. Ejemplos de dichos sistemas externos tenemos a Base de Datos como MySQL, Postgres, Servicios de la nube como AWS, Azure, Generación de archivos como Exceles, PDFs, interacción con otras APIs o aplicaciones web, base de datos en memoria como Redis, Memcache, colas de mensajería como Kafka o RabbitMQ, sistemas de procesamiento de datos como Spark, Apache Flink, sistemas de notificiaciones como correos, mensajes a celulares, etc). Este tipo de clases vive en la capa de infraestructura de nuestra Arquitectura Hexagonal.
+
+**Repositories:** Clases que contienen el código para ejecutar las consultas contra las bases de datos (Ejemp: PersonaMySQLRepository.php)
+
+**Test unitarios:** Son clases que viven en la capa de infraestructura y validan el comportamiento de los casos usos de forma aislada, sin depender de servicios externos como bases de datos, APIs o colas de mensajes. Por ejemplo, para el caso de uso “Generar Solicitud” tendríamos la clase GenerarSolcitudTest.
+
+**Vistas y Componentes visuales:** También contiene en caso de ser necesario, los .blade, así como, los componentes blade y livewire
+
+
+**Capa de Application:** En esta capa va principalmente la lógica de negocio específica a los Casos de Usos de nuestro negocio, también tenemos los Dtos, Application Services, etc. El código que debemos escribir aquí es puro php, evitar por todos los medios posibles escribir código que tenga que ver con el framework, no queremos bajo ningún concepto que nuestra lógica de negocio se contamine con código del framework o que tenga que ver con la interacción con sistemas externos.
+
+A continuación describimos algunas de las clases y el tipo de código que radican en esta capa:
+
+**Dtos de entrada (InDto)**: Son clases que viven en la capa de Aplicación de nuestra arquitectura hexagonal y la responsabilidad principal del código que escribimos en este tipo de clases es la de guardar la información que recibimos del cliente (Web, CLI, API) y mover esa información entre las diferentes capas más internas de la arquitectura (Aplicación y Dominio), por lo general este tipo de objetos se instancian en los Adaptadores de entrada (InAdapters). Con estas clases se acabaron los tiempos aquellos en los que te paseabas el objeto $Request de Laravel por todo tu código para extraer la info que se mandaba del cliente.
+
+**Dtos de salida (OutDto)**: Son clases que viven en la capa de Aplicación de nuestra Arquitectura Hexagonal y la responsabilidad principal del código que escribimos en este tipo de clases es la de transformar la información tal como la espera recibir el cliente. Pongo en contexto, la mayoría de las veces, la información no es persistida en base de datos tal como la necesita el cliente y antes de ser enviada a este necesita ser transformada al formato y el tipo de datos que este necesita. Ejemplo, muchas veces el cliente espera recibir el nombre de una persona de manera completa “Diego Rodrigues Avila” pero en la base de datos el  nombre se guarda en el campo ln_nombre, el primer apellido en el campo ln_primer_apellido y el segundo apellido en el campo ln_segundo_apellido. Entonces digamos que un flujo normal, el adaptador de salida (OutAdapter) recupera la información del productor tal como está en la Base Datos, se la pasa al Dto de Salida (OutDto) y este último la transforma en el nombre completo que es como realmente la espera el cliente final, tal como vimos anteriormente. Otro ejemplo es con el tipo de datos, muchas veces las fechas son guardadas en la base de datos como el tipo
+de datos Datetime, pero el cliente lo que espera como fecha es un texto, pues la clase OutDto también se encarga de hacer este tipo de conversiones para que la información pueda ser fácilmente serializada se le haga llegar al cliente en el formato y tipo de dato esperado.
+
+En resumen, el DTO de entrada se enfoca en recibir la información que nos manda el cliente,
+mientras que el DTO de salida se enfoca en exponer la información tal como la espera recibir el
+cliente.
+
+**Puerto de entrada:** Son Interfaces que viven en la capa de Aplicación de nuestra Arquitectura Hexagonal y representan o describen lo que la aplicación puede hacer (no como lo hace) por lo general representan los casos de usos. Por ejemplo, si tenemos el caso de uso “Generar Solicitud” que necesita realizar varias inserciones en BD de manera atómica pudieramos tener el puerto de entradaIGenerarSolicitudInPort que expone el método generarSolicitud.
+
+**Puerto de salida:** Son Interfaces que viven en la capa de Aplicación de nuestra Arquitectura
+Hexagonal y representan o describen qué necesita nuestro negocio del mundo externo. Representa las dependencias hacia infraestructuras externas (bases de datos, APIs, colas, servicios externos). Son implementados normalmente por adaptadores de salida de infraestructura. Por ejemplo en el caso de uso de “Generar Solicitud” tendríamos el puerto de salida IGenerarSolicitudOutPort que expone el método persistirSolicitud.
+
+**Casos de usos:** Son clases que viven en la capa de Aplicación de nuestra Arquitectura Hexagonal y la principal responsabilidad que tiene el código que escribimos en este tipo de clases es la de implementar la lógica de negocio de las tareas que se llevan a cabo en un negocio en particular. En los casos de uso, el código que normalmente vemos se encarga de lo siguiente:
+
+-- Orquestación, los casos de usos para poder llevar a cabo con éxito su tarea invocan y orquestan la interacción entre las clases del dominio.
+
+-- Interacción con puertos de salida (interfaces) para interactuar con repositorios, sistemas de colas de mensaje, APIs externas, etc.
+
+-- Transformación de DTOs ↔ Entidades de dominio.
+
+-- Ejecución de secuencias de pasos para lograr un objetivo.
+
+-- Decidir qué hacer ante fallos de infraestructura o negocio, tal como, disparar excepciones cuando ocurren un error de negocio (Ejemp: throw CurpInvalidaExcpetion)
+
+-- Ejecutar ciclos For, While para procesar listas.
+
+-- Condicionales IF para tomar un flujo u otro según ciertas circunstancias que ocurran
+
+En este tipo de clases también sólo debemos escribir código con pura sintaxis de php para no
+acoplar la lógica de negocio al framework (Laravel) y mantenerla más reutilizable. El caso de uso es el coreógrafo de la aplicación, no el bailarín; los bailarines son las entidades y
+servicios de dominio.
+
+**Servicios de aplicación:** Son clases que viven en la capa de Aplicación de nuestra Arquitectura Hexagonal y contienen el mismo tipo de código que los casos de usos, la principal diferencia con estos últimos, es que los casos de usos son ejecutados como consecuencia de una acción realizada directamente por un usuario del sistema, los casos de usos por lo general responden a una tarea en particular del negocio, mientras que los servicios de aplicación apoyan o auxilian a uno o más casos de usos a cumplir su objetivo y no son ejecutados como consecuencia de una acción directa de un usuario, más bien son ejecutados por un caso de uso, son más re-utilizables que un caso de uso.
+
+
+**Capa de Domain:** En esta capa también va lógica de negocio, pero a diferencia de la capa de aplicación que es lógica de negocio relativa al caso de uso, aquí va lógica de negocio específica a las clases del dominio de nuestro negocio (Ejemp: Lógica de negocio relativa al concepto de Trámite, Productor, Solicitud, Folio, etc)
+
+A continuación describimos algunas de las clases y el tipo de código que radican en esta capa:
+
+**Entidades (Entities)**: Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o modelan conceptos específicos (por lo general sustantivos) que definen nuestro negocio (Ejemp: Solicitud, Trámite, Padrón, Productor, Folio) , el código que se escribe dentro de estas clases es lógica de negocio directamente relacionado con estos conceptos o sustantivos. Por ejemplo, por lo general todas las solicitudes cuentan con un folio que tiene un formato en específico (25-PRONAFE-FERT-000024-L001-AS) que empiezan con los últimos dos dígitos del año (25) + el texto PRONAFE + más un consecutivo (000024) + el estado (AS de Aguascalientes), esa lógica de negocio muy específica se pudiera implementar en una clase del dominio llamada Folio, y a su vez esa clase del dominio forma parte de la clase Solicitud o Trámite. Importante, algo que caracteriza a las entidades de dominio es que cuentan con un identificador único que valga la redundancia identifican este tipo de clases. Un ejemplo de Entidad sería una Solicitud ya que las solicitudes por definición de negocio cuentan con un atributo id que lo identifican y lo hacen único.
+
+**Value Objects:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o modelan conceptos específicos (por lo general sustantivos) que definen nuestro negocio. Las características fundamentales de estos objetos son:
+
+1-) Lo que los hace únicos o lo que los identifica es la combinación de los valores de cada unos de
+sus atributos. Si cambias uno de los valores de sus atributos, ya estamos hablando de un objeto
+diferentes.
+
+2-) Son inmutables, una vez que inicializas sus valores, estos no deben de cambiar , si quieres
+modificar algunos de los valores de sus atributos, debes regresar un objeto completamente nuevo. Un ejemplo de Value Object sería el objeto Dirección (dirección de un productor), por lo general lo que identifica a una dirección es la combinación de los atributos Calle, Número, Delegación, Colonia, CP, Estado, en sí, este objecto no cuenta con un identificador, lo que lo hace único e irrepetible es la combinación de los atributos anteriores, cambias un atributo y ya estás hablando de un objeto completamente diferente. Otros ejemplos de value object pudieran ser, CURP, RFC, Supercie de Cultivo, etc.
+
+**Eventos del Dominio:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen eventos que ocurren en nuestro negocio, por ejemplo, Año Seleccionado, Programa Seleccionado, etc. Debido a que los eventos describen algo que ocurrió y acaba de pasar en nuestro sistema, se deben escribir en pasado (Ejemp: AnioSeleccionadoEvent, ProgramaSeleccionadoEvent). El código que va en este tipo de clases contiene información relativa al evento ocurrido y que se quiere transmitir a otras clases que tienen que ver con procesos que se activan o se ejecutan cada vez que un evento ocurre, por ejemplo, la clase AnioSeleccionadoEvent, contiene el año seleccionado.
+
+**Excepciones del Dominio:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen errores de nuestro negocio, por ejemplo, si como parte de un proceso de dar de alta a una persona en el Padrón de Beneficiarios, se valida que una persona se encuentra activa, lo cual indica que está viva, si nuestro caso de uso detecta que no está activa como parte de su proceso de validación puede disparar la excepción de negocio PersonaNoActivaException.
+
+**Enums del Dominio:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen un conjunto limitado de valores válidos, por ejemplo si una Solicitud o Trámite pasa por 4 estatus durante su proceso, digamos (Pendiente, Aprobada, Rechaza, Cancelada), pudiéramos crear el objeto EstatusSolcitudEnum que modelaría el estatus en que se encuentra una solicitud o trámite de nuestro negocio.
+
+**Servicio del Dominio:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen lógica de negocio cruzadas entre entidades que no pertenecen naturalmente a una sola entidad. Por ejemplo, si tenemos lógica de negocio que checa la elegibilidad de un beneficiario y para ellos tenemos la Regla de negocio de que un beneficiario solo puede recibir subsidios si cumple criterios de edad, superficie cultivada y no duplicidad en otros programas, esta lógica está relacionada a diferentes clases de dominio como pudieran ser la entidad Beneficiario, SuperficieVO, la clase entidad Solicitud, lo cual hace ambiguo y confuso tomar una decisión de en cual de estas clases debería escribirse esta lógica de negocio, cada vez que nos encontremos ante esta situación de ambigüedad , donde la lógica no cabe de manera natural en una de las clases del dominio existente, lo recomendable es implementar la regla en una clase de Servicio de Dominio, que en este caso en particular le llamaríamos ElegibilidadBeneficiarioDomainService. Algo que caracteriza este tipo de clases es que sólo se enfocan en una sóla cosa o regla, en nuestro caso de ejemplo, nuestra
+clase sólo se enfocaría en determinar la elegibilidad de un beneficiario (Prinicipio de Single
+Responsability de los principios SOLID).
+
+**Aggregates del Dominio:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen conceptos que cobran vida o sentido como parte de unir varias clases de dominio y los trata como una unidad, agrupa varias entidades, value objects, enums, etc. Por ejemplo, la solicitud de un beneficio puede ser un agregado SolicitudBeneficioAggregate que además de tener su propio identificador ,está formando o agrupa como parte de su conceptualización otros objetos del dominio, como puede ser la entidad DocumentoAdjunto (INE, Comprobante de domicilio, Curp) que hace referencia a los archivos requeridos, el value object periodo de vigencia PeriodoVigenciaVO que define la ventana de tiempo de la solicitud (fecha inicio, fecha fin), el value object que hace referencia al monto del beneficio MontoBeneficioVO, que encapsula validaciones relativas a que el monto no puede ser negativo y límites máximos según programa, el enumEstatusSolicitudEnum, que representa el estatus actuál de la solicitud del beneficio como es EN_REVISION, APROBADA, RECHAZADA, CANCELADA.
+
+**Specifications:** Son clases que viven en la capa de Dominio de nuestra Arquitectura Hexagonal y representan o describen una regla booleana que determina si un objeto del dominio cumple o no un criterio. Por ejemplo, pudiéramos tener la regla de que “un beneficiario es elegible si tiene menos de 50 hectáreas” para ello crearíamos el specification SuperficieMaximaSpecification que regresa true si el beneficiario no excede las 50 hectáreas de tierra, y false en caso contrario.
+
+### Estructura de Carpetas
+
+**app/Core:** Representa la carpeta donde vive todo el código de nuestro negocio o dominio,
+IMPORTANTE, core de nuestro negocio o dominio, no de laravel.
+
+**app/Core/Infraestructure:** Aquí va todo el código de la capa de infraestructura.
+
+**app/Core/Infraestructure/Adapters:** Aquí va todo el código relativo a los adaptadores.
+
+**app/Core/Infraestructure/Adapters/In:** Aquí va todo el código relativo a los adaptadores de entrada.
+
+**app/Core/Infraestructure/Adapters/In/Api:** Aquí va todo el código relativo a los adaptadores de
+entrada que reciben los datos del cliente mediante la invocación de un API. Si el día de mañana la
+información también se recibe mediante un navegador, crearíamos la carpeta Web (.../In/Web) o
+mediante una consola (.../In/Cli)
+
+**app/Core/Infraestructure/Adapters/Out:** Aquí va todo el código relativo a los adaptadores de salida.
+
+**app/Core/Infraestructure/Adapters/Out/Aws:** Aquí va código orientado a interactúar con la nube de
+AWS (Ejemp: S3).
+
+**app/Core/Infraestructure/Adapters/Out/Files:** Aquí va código orientado a interactúar con el sistema
+de archivo local de mi servidor para guardar archivos , recuperarlos y eliminarlos.
+
+**app/Core/Infraestructure/Adapters/Out/Persistence:** Aquí va código orientado a la persistencia de
+datos en BD externas.
+
+**app/Core/Infraestructure/Adapters/Out/Persistence/MySQL:** Aquí va código orientado a persistir
+información en un BD MySQL específicamente, código que tiene la lógica de construcción de
+consultas con necesidades especiales y que posteriormente serán ejecutadas por el Repository. Si el día
+de mañana , ya no es MySQL y es Postgres o MongoDB, se crearía la carpeta Postgres ó MongoDB
+respectivamente.
+
+**app/Core/Infraestructure/Adapters/Out/Persistence/MySQL/Models:** Aquí va el código de los
+modelos de laravel que están orientados a persistir información en una BD MySQL.
+
+**app/Core/Infraestructure/Adapters/Out/Persistence/MySQL/Repositories:** Aquí van las clases
+Repositories que ejecutan las consultas contra la BD.
+
+**app/Core/Infraestructure/Tests/Unit:** Aquí va todo el código relativo a las pruebas unitarias.
+
+**app/Core/Infraestructure/Views:** Aquí va todo el código relativo a las vistas.
+
+**app/Core/Infraestructure/Views/Components:** Aquí va todo el código relativo a los componentes
+Blades.
+
+**app/Core/Infraestructure/Views/Livewire:** Aquí va todo el código relativo a los componentes
+Livewires.
+
+**app/Core/Application:** Aquí va todo el código de la capa de Aplicación.
+
+**app/Core/Application/Dtos:** Aquí va todo el código relativo a los Dtos.
+
+**app/Core/Application/Dtos/In:** Aquí va todo el código relativo a los Dtos de entrada.
+
+**app/Core/Application/Dtos/Out:** Aquí va todo el código relativo a los Dtos de salida.
+
+**app/Core/Application/Ports:** Aquí va todo el código relativo a los puertos de entrada y salida.
+(Interfaces).
+
+**app/Core/Application/Ports/In:** Aquí va todo el código relativo a los puertos de entrada (Interfaces).
+
+**app/Core/Application/Ports/Out:** Aquí va todo el código relativo a los puertos de salida (Interfaces).
+
+**app/Core/Application/Services:** Aquí va todo el código relativo a los Applications Services.
+
+**app/Core/Application/UseCases:** Aquí va todo el código relativo a los Casos de Usos.
+
+**app/Core/Domain:** Aquí va todo el código de la capa de Dominio.
+
+**app/Core/Domain/Aggregates:** Aquí va todo el código de los agregados.
+
+**app/Core/Domain/Entities:** Aquí va todo el código de las entidades.
+
+**app/Core/Domain/Enums:** Aquí va todo el código de los Enums.
+
+**app/Core/Domain/Events:** Aquí va todo el código de los Eventos.
+
+**app/Core/Domain/Exceptions:** Aquí va todo el código de las excepciones del negocio.
+
+**app/Core/Domain/Services:** Aquí va todo el código de los servicios de dominio.
+
+**app/Core/Domain/Specifications:** Aquí va todo el código de los Specifications.
+
+**app/Core/Domain/Vo:** Aquí va todo el código de los Value Objects.
+
+
+### Pruebas Unitarias
+
+Las pruebas unitarias de los nuevos proyectos de la DGTIC hacen uso del enfoque Given – When –
+Then (Dado – Cuando - Entonces) que facilitan la comprensión de las pruebas unitarias y
+homogenizan la forma en que se escriben.
+
+El enfoque Given–When–Then (GWT) es una forma estructurada de escribir pruebas (unitarias o de
+comportamiento) que mejora la legibilidad y la claridad de lo que se está probando.
+
+Given (Dado que / Contexto)
+• Aquí se establece el estado inicial del sistema o los precondiciones de la prueba.
+• Se configuran objetos, dependencias y datos necesarios para que el escenario tenga sentido.
+• Se configuran Dtos de entrada, se mockean o simulan los repositories, adaptadores de salidas ,
+etc
+
+Ejemplo: "Dado que existe un beneficiario registrado con ciertos datos".
+
+When (Cuando / Acción)
+• Es la acción que queremos probar (Caso de Uso).
+
+Ejemplo: "Cuando se actualiza su dirección".
+
+Then (Entonces / Resultado esperado)
+• Aquí se verifican los resultados esperados.
+• Se aplican las aserciones que confirman que el sistema se comporta como debe.
+
+Ejemplo: "Entonces la dirección del beneficiario debe reflejar la nueva dirección".

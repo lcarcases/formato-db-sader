@@ -6,6 +6,7 @@ description: "Task list template for feature implementation"
 # Tasks: [FEATURE NAME]
 
 **Input**: Design documents from `/specs/[###-feature-name]/`
+
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -25,21 +26,21 @@ description: "Task list template for feature implementation"
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - Paths shown below assume single project - adjust based on plan.md structure
 
-<!-- 
+<!--
   ============================================================================
   IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit.tasks command MUST replace these with actual tasks based on:
+
+  The /speckit-tasks command MUST replace these with actual tasks based on:
   - User stories from spec.md (with their priorities P1, P2, P3...)
   - Feature requirements from plan.md
   - Entities from data-model.md
   - Endpoints from contracts/
-  
+
   Tasks MUST be organized by user story so each story can be:
   - Implemented independently
   - Tested independently
   - Delivered as an MVP increment
-  
+
   DO NOT keep these sample tasks in the generated tasks.md file.
   ============================================================================
 -->
@@ -60,22 +61,14 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project and hexagonal architecture):
+Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 Setup database schema and migrations framework
-- [ ] T005 [P] Define base domain exceptions and error hierarchy
-- [ ] T006 [P] Setup API routing and middleware structure (infrastructure layer)
-- [ ] T007 [P] Create base repository interfaces (application ports)
+- [ ] T005 [P] Implement authentication/authorization framework
+- [ ] T006 [P] Setup API routing and middleware structure
+- [ ] T007 Create base models/entities that all stories depend on
 - [ ] T008 Configure error handling and logging infrastructure
 - [ ] T009 Setup environment configuration management
-- [ ] T010 [P] Implement authentication/authorization framework (infrastructure adapter)
-- [ ] T011 [P] Setup dependency injection container for ports/adapters wiring
-
-**Hexagonal Architecture Reminder**: 
-- Domain entities and value objects should be pure PHP
-- Application services define use case interfaces (inbound ports)
-- Repository interfaces are outbound ports
-- Controllers and Eloquent are infrastructure adapters
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -91,39 +84,17 @@ Examples of foundational tasks (adjust based on your project and hexagonal archi
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Domain unit tests for [Entity] in tests/Unit/Core/[Context]/Domain/[Entity]Test.php
-- [ ] T013 [P] [US1] Application unit tests for [UseCase] in tests/Unit/Core/[Context]/Application/[UseCase]Test.php
-- [ ] T014 [P] [US1] API contract test for [endpoint] in tests/Feature/Api/[Endpoint]Test.php
-- [ ] T015 [P] [US1] Repository integration test in tests/Integration/Infrastructure/Persistence/[Repository]Test.php
+- [ ] T010 [P] [US1] Contract test for [endpoint] in tests/contract/test_[name].py
+- [ ] T011 [P] [US1] Integration test for [user journey] in tests/integration/test_[name].py
 
-### Implementation for User Story 1 (Hexagonal Architecture Layers)
+### Implementation for User Story 1
 
-**Domain Layer** (Pure PHP, framework-agnostic):
-- [ ] T016 [P] [US1] Create [Entity] entity in app/Core/[Context]/Domain/Entities/[Entity].php
-- [ ] T017 [P] [US1] Create [ValueObject] value objects in app/Core/[Context]/Domain/ValueObjects/
-- [ ] T018 [P] [US1] Create domain events in app/Core/[Context]/Domain/Events/ (if applicable)
-- [ ] T019 [P] [US1] Create domain exceptions in app/Core/[Context]/Domain/Exceptions/
-
-**Application Layer** (Use cases, ports, DTOs):
-- [ ] T020 [US1] Define [UseCase] interface (inbound port) in app/Core/[Context]/Application/Ports/In/[UseCase].php
-- [ ] T021 [P] [US1] Define [Repository] interface (outbound port) in app/Core/[Context]/Application/Ports/Out/[Repository].php
-- [ ] T022 [P] [US1] Create Input DTO in app/Core/[Context]/Application/DTOs/[Input]DTO.php
-- [ ] T023 [P] [US1] Create Output DTO in app/Core/[Context]/Application/DTOs/[Output]DTO.php
-- [ ] T024 [US1] Implement [UseCase] application service in app/Core/[Context]/Application/UseCases/[UseCase].php (depends on T020-T023)
-
-**Infrastructure Layer** (Laravel-specific adapters):
-- [ ] T025 [US1] Create Eloquent model in app/Core/[Context]/Infrastructure/Adapters/Out/Persistence/[Model].php
-- [ ] T026 [US1] Implement [Repository] in app/Core/[Context]/Infrastructure/Adapters/Out/Persistence/[Repository].php (depends on T021, T025)
-- [ ] T027 [US1] Create database migration for [table]
-- [ ] T028 [US1] Create API controller in app/Core/[Context]/Infrastructure/Adapters/In/Api/[Controller].php (depends on T020, T024)
-- [ ] T029 [US1] Create Form Request validation in app/Core/[Context]/Infrastructure/Adapters/In/Api/Requests/[Request].php
-- [ ] T030 [US1] Create API resource transformer in app/Core/[Context]/Infrastructure/Adapters/In/Api/Resources/[Resource].php
-- [ ] T031 [US1] Register routes in routes/web.php or api route file
-- [ ] T032 [US1] Wire dependencies in Laravel service provider
-
-**Cross-cutting**:
-- [ ] T033 [US1] Add structured logging to use case
-- [ ] T034 [US1] Update OpenAPI specification for new endpoint
+- [ ] T012 [P] [US1] Create [Entity1] model in src/models/[entity1].py
+- [ ] T013 [P] [US1] Create [Entity2] model in src/models/[entity2].py
+- [ ] T014 [US1] Implement [Service] in src/services/[service].py (depends on T012, T013)
+- [ ] T015 [US1] Implement [endpoint/feature] in src/[location]/[file].py
+- [ ] T016 [US1] Add validation and error handling
+- [ ] T017 [US1] Add logging for user story 1 operations
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
