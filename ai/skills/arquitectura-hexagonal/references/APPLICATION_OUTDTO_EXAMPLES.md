@@ -35,9 +35,10 @@ CreateSolicitudOutDto                 // ❌ WRONG: Use Crear, not Create!
 1. **Use semantic property names** (e.g., `$tiposRequerimientos`, not `$data`)
 2. **Use Spanish verbs** in class names (`Obtener`, not `Get`)
 3. **Use plural forms** for collections (`ObtenerTiposRequerimientosOutDto` for multiple)
-4. **Use nested DTOs** for collections (e.g., array of `ObtenerTipoRequerimientoOutDto`)
+4. **Use nested DTOs** for collections (e.g., array of `ObtenerTipoRequerimientoOutDto`) — never a domain VO/Entity
 5. **Be simple data carriers** (no business logic)
 6. **ALWAYS prefix with use case verb** (`Obtener`, `Crear`, `Listar`, etc.)
+7. **Be instantiated ONLY in the InAdapter, after calling the use case** — never inside the UseCase, Domain, or Infrastructure (OutAdapter/Repository) layers
 
 ### ❌ What OutDTOs MUST NOT HAVE:
 1. **NO `$success` attribute** (InAdapter handles success/failure)
@@ -46,6 +47,8 @@ CreateSolicitudOutDto                 // ❌ WRONG: Use Crear, not Create!
 4. **NO business logic** (validation, calculations, etc.)
 5. **NO generic suffixes** (`ItemDto`, `DataDto`, `InfoDto` are FORBIDDEN)
 6. **NO missing verb prefix** (`TipoRequerimientoOutDto` → should be `ObtenerTipoRequerimientoOutDto`)
+7. **NO domain classes as property types** (`list<BaseDatosVO>` is FORBIDDEN — wrap each item in a nested OutDTO with primitive properties instead)
+8. **NO instantiation outside the InAdapter** (UseCases MUST return raw domain data — e.g. `list<BaseDatosVO>` — and let the InAdapter build the OutDTO; see Mistake 5 below)
 
 ---
 
@@ -297,6 +300,54 @@ class ObtenerTiposRequerimientosOutDto
         $this->tiposRequerimientos = $data;  // ❌ No transformation!
     }
 }
+```
+
+### Mistake 4: Contains domain classes
+
+```php
+// ❌ WRONG: OutDto property typed as list<DomainValueObject> — a domain
+// class (BaseDatosVO) leaks into the Application/InAdapter contract
+final readonly class ObtenerBasesDatosOutDto
+{
+    /**
+     * @param  list<BaseDatosVO>  $basesDatos  Array of base de datos value objects
+     */
+    public function __construct(
+        public array $basesDatos,
+    ) {}
+}
+```
+
+```php
+// ✅ CORRECT: Array of nested DTOs (primitives only), never domain VOs/Entities
+final readonly class ObtenerBaseDatosOutDto
+{
+    public function __construct(
+        public int $id,
+        public string $nombre,
+    ) {}
+
+    public function toArray(): array
+    {
+        return ['id' => $this->id, 'nombre' => $this->nombre];
+    }
+}
+
+final readonly class ObtenerBasesDatosOutDto
+{
+    /** @param list<ObtenerBaseDatosOutDto> $basesDatos */
+    public function __construct(
+        public array $basesDatos,
+    ) {}
+
+    public function toArray(): array
+    {
+        return array_map(
+            fn (ObtenerBaseDatosOutDto $baseDatos): array => $baseDatos->toArray(),
+            $this->basesDatos
+        );
+    }
+}
 
 // ✅ CORRECT: Array of DTOs
 class ObtenerTiposRequerimientosOutDto
@@ -317,6 +368,92 @@ class ObtenerTiposRequerimientosOutDto
     }
 }
 ```
+
+### Mistake 5: Instantiating the OutDTO outside the InAdapter
+
+```php
+// ❌ WRONG: UseCase constructs and returns the OutDto itself
+final class ObtenerBasesDatosUseCase
+{
+    public function __construct(
+        private BaseDatosOutPort $outPort,
+    ) {}
+
+    public function execute(): ObtenerBasesDatosOutDto
+    {
+        $basesDatos = $this->outPort->obtenerBasesDatos();
+
+        // ❌ OutDTOs are an InAdapter/API-response concern — the UseCase
+        // must not know they exist
+        return new ObtenerBasesDatosOutDto($basesDatos);
+    }
+}
+
+// ❌ WRONG: OutAdapter or Repository instantiates an OutDto
+final class BaseDatosOutAdapter implements BaseDatosOutPort
+{
+    public function obtenerBasesDatos(): array
+    {
+        $rawData = $this->baseDatosRepository->obtenerBasesDatos();
+
+        // ❌ Infrastructure must not know about Application-layer OutDTOs
+        return new ObtenerBasesDatosOutDto(/* ... */);
+    }
+}
+```
+
+```php
+// ✅ CORRECT: UseCase returns raw domain data; OutDto is built ONLY in the InAdapter
+// ✅ Property named after the OutPort interface, NOT generic "$outPort"
+final readonly class ObtenerBasesDatosUseCase
+{
+    public function __construct(
+        private BaseDatosOutPort $baseDatosOutPort,
+    ) {}
+
+    /** @return list<BaseDatosVO> */
+    public function execute(): array
+    {
+        return $this->baseDatosOutPort->obtenerBasesDatos();
+    }
+}
+
+final readonly class ObtenerBasesDatosInAdapter
+{
+    public function __construct(
+        private ObtenerBasesDatosUseCase $useCase,
+    ) {}
+
+    public function __invoke(): JsonResponse
+    {
+        $basesDatos = $this->useCase->execute(); // list<BaseDatosVO>
+
+        // ✅ The OutDto (and its nested item DTOs) is instantiated here,
+        // in the InAdapter, after the use case has already returned
+        $dto = new ObtenerBasesDatosOutDto(
+            array_map(
+                fn (BaseDatosVO $baseDatos): ObtenerBaseDatosOutDto => new ObtenerBaseDatosOutDto(
+                    id: $baseDatos->id,
+                    nombre: $baseDatos->nombre,
+                ),
+                $basesDatos
+            )
+        );
+
+        return response()->json([
+            'data' => $dto->toArray(),
+            'message' => 'Bases de datos obtenidas exitosamente',
+            'code' => '200',
+            'success' => true,
+        ]);
+    }
+}
+```
+
+**Why this matters:**
+- The UseCase's return type stays a pure domain/application type (`list<BaseDatosVO>`, an array, etc.) — it has no idea an "OutDTO" or an HTTP response even exists.
+- OutAdapters and Repositories are Infrastructure — they must not import or construct Application-layer DTOs either.
+- Only the InAdapter sits at the boundary to the outside world, so only the InAdapter is allowed to shape a UseCase's raw result into the OutDTO that becomes the API response.
 
 ---
 
@@ -389,6 +526,7 @@ Purpose: Transform and format data for the client
 ✅ Live in Application layer
 ✅ Use semantic property names
 ✅ Use nested DTOs for collections
+✅ OutDTOs are instantiated ONLY in the InAdapter, after calling the use case
 
 ❌ DTOs MUST NOT contain:
    - Business logic
@@ -396,6 +534,11 @@ Purpose: Transform and format data for the client
    - Dependencies on Infrastructure
    - Laravel Request objects
    - $success or $message attributes (InAdapter handles these)
+   - Domain Value Objects/Entities as property types (use nested OutDTOs with primitive properties)
+
+❌ OutDTOs MUST NOT be instantiated in:
+   - UseCases (must return raw domain data instead, e.g. list<SomeVO>)
+   - OutAdapters or Repositories (Infrastructure must not know OutDTOs exist)
 ```
 
 **Naming Convention:**

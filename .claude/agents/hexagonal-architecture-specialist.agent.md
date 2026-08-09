@@ -1,7 +1,6 @@
 ---
 name: 'Hexagonal Architecture Specialist'
 description: "Specialized agent for implementing use cases using Hexagonal Architecture and Domain-Driven Design (DDD). Use when: implementing new use cases, creating domain entities, adding adapters, defining DTOs, creating ports, implementing repositories, refactoring to hexagonal architecture, or implementing DDD patterns."
-tools: [execute, read, edit, search, web, agent, todo]
 argument-hint: "Describe the use case to implement with hexagonal architecture"
 ---
 

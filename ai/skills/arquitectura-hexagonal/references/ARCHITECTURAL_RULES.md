@@ -289,15 +289,16 @@ final class TipoRequerimientoPostgresSQLRepository
 // ✅ CORRECT: OutAdapter implements OutPort interface
 final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimientoOutPort
 {
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private TipoRequerimientoPostgresSQLRepository $repository
+        private TipoRequerimientoPostgresSQLRepository $tipoRequerimientoPostgresSQLRepository
     ) {}
 
     // ✅ Calls Repository and maps to Domain
     public function obtenerTodos(): array
     {
         // Get raw data from Repository
-        $rawData = $this->repository->findAll();
+        $rawData = $this->tipoRequerimientoPostgresSQLRepository->findAll();
         
         // Map to Domain objects (if needed) or return as-is
         return array_map(
@@ -319,10 +320,12 @@ final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimiento
    - Map raw data ↔ Domain objects
    - Handle business-oriented data operations
    - Be injected in UseCases
+   - Name the injected Repository property after its class (${nameRepositoryClass}, never $repository)
    
 ❌ MUST NOT:
    - Access database directly (use Repository!)
    - Contain business logic (that's Domain/UseCase!)
+   - Name the injected Repository property generically ($repository)
 ```
 
 ### The Complete Flow

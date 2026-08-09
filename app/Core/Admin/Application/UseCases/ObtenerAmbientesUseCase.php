@@ -23,7 +23,7 @@ use App\Core\Admin\Domain\ValueObjects\AmbienteVO;
 final readonly class ObtenerAmbientesUseCase
 {
     public function __construct(
-        private AmbienteDesarrolloOutPort $outPort,
+        private AmbienteDesarrolloOutPort $ambienteDesarrolloOutPort,
     ) {}
 
     /**
@@ -33,6 +33,6 @@ final readonly class ObtenerAmbientesUseCase
      */
     public function execute(): array
     {
-        return $this->outPort->obtenerAmbientesDesarrollo();
+        return $this->ambienteDesarrolloOutPort->obtenerAmbientesDesarrollo();
     }
 }

@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace App\Core\Admin\Infrastructure\Adapters\In\Api;
 
+use App\Core\Admin\Application\DTOs\Out\ObtenerAmbienteOutDto;
 use App\Core\Admin\Application\DTOs\Out\ObtenerAmbientesOutDto;
 use App\Core\Admin\Application\UseCases\ObtenerAmbientesUseCase;
+use App\Core\Admin\Domain\ValueObjects\AmbienteVO;
 use Illuminate\Http\JsonResponse;
 
 /**
@@ -38,15 +40,21 @@ final readonly class ObtenerAmbientesInAdapter
             // Execute use case to get raw array<AmbienteVO>
             $ambientes = $this->useCase->execute();
 
-            // Create DTO (explicit contract)
-            $dto = new ObtenerAmbientesOutDto($ambientes);
+            // Create DTO (explicit contract) — mapping from domain VO to nested
+            // DTO happens here, the only place OutDTOs may be instantiated
+            $dto = new ObtenerAmbientesOutDto(
+                array_map(
+                    fn (AmbienteVO $ambiente): ObtenerAmbienteOutDto => new ObtenerAmbienteOutDto(
+                        id: $ambiente->id,
+                        nombre: $ambiente->nombre,
+                    ),
+                    $ambientes
+                )
+            );
 
             // Transform to standard JSON response format
             return response()->json([
-                'data' => array_map(
-                    fn ($ambiente) => $ambiente->toArray(),
-                    $dto->ambientes
-                ),
+                'data' => $dto->toArray(),
                 'message' => 'Ambientes obtenidos exitosamente',
                 'code' => '200',
                 'success' => true,

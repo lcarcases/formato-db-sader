@@ -24,12 +24,12 @@ final class ObtenerAmbientesUseCaseTest extends TestCase
             new AmbienteVO(id: 2, nombre: 'QA'),
         ];
 
-        $outPort = $this->createMock(AmbienteDesarrolloOutPort::class);
-        $outPort->expects($this->once())
+        $ambienteDesarrolloOutPort = $this->createMock(AmbienteDesarrolloOutPort::class);
+        $ambienteDesarrolloOutPort->expects($this->once())
             ->method('obtenerAmbientesDesarrollo')
             ->willReturn($expectedAmbientes);
 
-        $useCase = new ObtenerAmbientesUseCase($outPort);
+        $useCase = new ObtenerAmbientesUseCase($ambienteDesarrolloOutPort);
 
         // Act
         $result = $useCase->execute();
@@ -47,11 +47,11 @@ final class ObtenerAmbientesUseCaseTest extends TestCase
             new AmbienteVO(id: 3, nombre: 'Test3'),
         ];
 
-        $outPort = $this->createMock(AmbienteDesarrolloOutPort::class);
-        $outPort->method('obtenerAmbientesDesarrollo')
+        $ambienteDesarrolloOutPort = $this->createMock(AmbienteDesarrolloOutPort::class);
+        $ambienteDesarrolloOutPort->method('obtenerAmbientesDesarrollo')
             ->willReturn($expectedAmbientes);
 
-        $useCase = new ObtenerAmbientesUseCase($outPort);
+        $useCase = new ObtenerAmbientesUseCase($ambienteDesarrolloOutPort);
 
         // Act
         $result = $useCase->execute();
@@ -65,11 +65,11 @@ final class ObtenerAmbientesUseCaseTest extends TestCase
     public function test_execute_handles_empty_array_from_out_port(): void
     {
         // Arrange
-        $outPort = $this->createMock(AmbienteDesarrolloOutPort::class);
-        $outPort->method('obtenerAmbientesDesarrollo')
+        $ambienteDesarrolloOutPort = $this->createMock(AmbienteDesarrolloOutPort::class);
+        $ambienteDesarrolloOutPort->method('obtenerAmbientesDesarrollo')
             ->willReturn([]);
 
-        $useCase = new ObtenerAmbientesUseCase($outPort);
+        $useCase = new ObtenerAmbientesUseCase($ambienteDesarrolloOutPort);
 
         // Act
         $result = $useCase->execute();
@@ -86,11 +86,11 @@ final class ObtenerAmbientesUseCaseTest extends TestCase
         $ambiente2 = new AmbienteVO(id: 10, nombre: 'Ambiente10');
         $expectedAmbientes = [$ambiente1, $ambiente2];
 
-        $outPort = $this->createMock(AmbienteDesarrolloOutPort::class);
-        $outPort->method('obtenerAmbientesDesarrollo')
+        $ambienteDesarrolloOutPort = $this->createMock(AmbienteDesarrolloOutPort::class);
+        $ambienteDesarrolloOutPort->method('obtenerAmbientesDesarrollo')
             ->willReturn($expectedAmbientes);
 
-        $useCase = new ObtenerAmbientesUseCase($outPort);
+        $useCase = new ObtenerAmbientesUseCase($ambienteDesarrolloOutPort);
 
         // Act
         $result = $useCase->execute();

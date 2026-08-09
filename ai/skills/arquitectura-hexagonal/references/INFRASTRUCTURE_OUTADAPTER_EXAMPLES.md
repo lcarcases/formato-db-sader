@@ -12,11 +12,14 @@
 3. **Map raw data ↔ Domain objects** (Repository returns raw, OutAdapter transforms)
 4. **Be injected in UseCases** (via OutPort interface)
 5. **Be bound in ServiceProvider** (OutPort → OutAdapter binding)
+6. **Name the injected Repository property after its class** (`{Entity}{Database}Repository $repository` is
+   ❌; use `${nameRepositoryClass}` in camelCase, e.g. `private BaseDatosRepository $baseDatosRepository`)
 
 ### ❌ What OutAdapters MUST NOT DO:
 1. **Access database directly** (use Repository!)
 2. **Be skipped/omitted** (OutAdapter is MANDATORY!)
 3. **Contain business logic** (that's Domain/UseCase job!)
+4. **Name the injected Repository property generically** (never `private {Entity}{Database}Repository $repository`)
 
 ---
 
@@ -35,15 +38,16 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoRequ
 final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimientoOutPort
 {
     // ✅ Uses Repository (NOT extends, just uses)
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private TipoRequerimientoPostgresSQLRepository $repository
+        private TipoRequerimientoPostgresSQLRepository $tipoRequerimientoPostgresSQLRepository
     ) {}
 
     // ✅ Calls Repository and returns data (with optional transformation)
     public function obtenerTodos(): array
     {
         // Get raw data from Repository
-        $rawData = $this->repository->findAll();
+        $rawData = $this->tipoRequerimientoPostgresSQLRepository->findAll();
         
         // ✅ Option 1: Return as-is (if no transformation needed)
         return $rawData;
@@ -60,7 +64,7 @@ final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimiento
     
     public function obtenerPorId(int $id): ?array
     {
-        $rawData = $this->repository->findById($id);
+        $rawData = $this->tipoRequerimientoPostgresSQLRepository->findById($id);
         
         if (!$rawData) {
             return null;
@@ -97,8 +101,9 @@ use App\Core\Programa\Infrastructure\Adapters\Out\Persistence\MySQL\Repositories
 // ✅ OutAdapter implements OutPort
 final class SolicitudMySQLOutAdapter implements ISolicitudOutPort
 {
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private SolicitudMySQLRepository $repository
+        private SolicitudMySQLRepository $solicitudMySQLRepository
     ) {}
 
     // ✅ Receives Domain Entity, transforms to array, passes to Repository
@@ -113,14 +118,14 @@ final class SolicitudMySQLOutAdapter implements ISolicitudOutPort
         ];
         
         // ✅ Repository handles the insert
-        return $this->repository->insertar($data);
+        return $this->solicitudMySQLRepository->insertar($data);
     }
     
     // ✅ Gets raw data from Repository, maps to Domain Entity
     public function buscarPorId(int $id): ?SolicitudEntity
     {
         // Repository returns raw data
-        $rawData = $this->repository->findById($id);
+        $rawData = $this->solicitudMySQLRepository->findById($id);
         
         if (!$rawData) {
             return null;
@@ -236,13 +241,14 @@ interface ITipoRequerimientoOutPort
 // ✅ 2. OutAdapter (Infrastructure - implements OutPort)
 final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimientoOutPort
 {
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private TipoRequerimientoPostgresSQLRepository $repository
+        private TipoRequerimientoPostgresSQLRepository $tipoRequerimientoPostgresSQLRepository
     ) {}
     
     public function obtenerTodos(): array
     {
-        return $this->repository->findAll();
+        return $this->tipoRequerimientoPostgresSQLRepository->findAll();
     }
 }
 
@@ -293,8 +299,9 @@ use App\Core\Inventario\Infrastructure\Adapters\Out\Persistence\MySQL\Repositori
 
 class FleteMySQLOutAdapter implements IFleteOutPort
 {
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private FleteMySQLRepository $repository
+        private FleteMySQLRepository $fleteMySQLRepository
     ) {}
 
     public function actualizarFechasLlegada(array $correccionesFecha): void
@@ -320,7 +327,7 @@ class FleteMySQLOutAdapter implements IFleteOutPort
                 . implode(',', $idSolicitudesFletes) . ")";
 
         // Pass built query to Repository for execution
-        $this->repository->ejecutarActualizacion($query);
+        $this->fleteMySQLRepository->ejecutarActualizacion($query);
     }
 }
 ```

@@ -5,13 +5,15 @@ declare(strict_types=1);
 namespace App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL;
 
 use App\Core\Admin\Application\Ports\Out\AmbienteDesarrolloOutPort;
+use App\Core\Admin\Domain\ValueObjects\AmbienteVO;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Models\AmbienteDesarrolloModel;
 use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\AmbienteDesarrolloRepository;
 
 /**
  * Out Adapter for Ambiente de Desarrollo (PostgreSQL implementation)
  *
  * Implements the OutPort interface defined in Application layer.
- * Delegates actual data access to the Repository.
+ * Delegates actual data access to the Repository and maps raw data to Domain objects.
  *
  * Adapter Pattern:
  * - Application defines OutPort interface (what it needs)
@@ -25,7 +27,7 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\Ambiente
 final readonly class AmbienteDesarrolloOutAdapter implements AmbienteDesarrolloOutPort
 {
     public function __construct(
-        private AmbienteDesarrolloRepository $repository,
+        private AmbienteDesarrolloRepository $ambienteDesarrolloRepository,
     ) {}
 
     /**
@@ -33,6 +35,14 @@ final readonly class AmbienteDesarrolloOutAdapter implements AmbienteDesarrolloO
      */
     public function obtenerAmbientesDesarrollo(): array
     {
-        return $this->repository->obtenerAmbientesDesarrollo();
+        $rawData = $this->ambienteDesarrolloRepository->obtenerAmbientesDesarrollo();
+
+        return array_map(
+            fn (AmbienteDesarrolloModel $model): AmbienteVO => new AmbienteVO(
+                id: $model->id_nu_ambiente_desarrollo,
+                nombre: $model->sn_nombre,
+            ),
+            $rawData
+        );
     }
 }

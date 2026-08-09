@@ -499,13 +499,14 @@ use App\Core\Beneficiario\Infrastructure\Adapters\Out\Persistence\MySQL\Reposito
 
 class BeneficiarioMySQLOutAdapter implements IBeneficiarioOutPort
 {
+    // ✅ Property named after the Repository class, NOT generic "$repository"
     public function __construct(
-        private BeneficiarioMySQLRepository $repository
+        private BeneficiarioMySQLRepository $beneficiarioMySQLRepository
     ) {}
 
     public function buscarPorCurp(CurpVO $curp): ?BeneficiarioEntity
     {
-        $data = $this->repository->findByCurp($curp->valor());
+        $data = $this->beneficiarioMySQLRepository->findByCurp($curp->valor());
         
         if ($data === null) {
             return null;
@@ -516,7 +517,7 @@ class BeneficiarioMySQLOutAdapter implements IBeneficiarioOutPort
 
     public function buscarPorId(int $id): ?BeneficiarioEntity
     {
-        $data = $this->repository->findById($id);
+        $data = $this->beneficiarioMySQLRepository->findById($id);
         
         if ($data === null) {
             return null;
