@@ -1,0 +1,127 @@
+openapi: 3.0.3
+info:
+  title: SADER Database Access Permissions API — Bases de Datos
+  description: >
+    OpenAPI 3.x fragment for the "Catálogo de Bases de Datos" endpoint
+    (feature specs/004-catalogo-bases-datos). This is the project's first
+    OpenAPI artifact — see the constitution's "Documentation Requirements"
+    section (docs/ is a new directory; prior features 001-003 shipped
+    without one). Treat this as the first concrete step of a broader,
+    cross-cutting OpenAPI effort, not a full retrofit of every existing
+    endpoint.
+  version: "1.0"
+servers:
+  - url: /api/v1/admin
+paths:
+  /bases-datos:
+    get:
+      operationId: obtenerBasesDatos
+      summary: Obtener catálogo de bases de datos
+      description: >
+        Retorna el catálogo de bases de datos activas disponibles para que
+        un trabajador de la DGTIC seleccione aquella sobre la cual desea
+        solicitar acceso. Endpoint público, no requiere autenticación
+        (FR-003).
+      tags:
+        - Admin / Catálogos
+      security: []
+      responses:
+        "200":
+          description: Catálogo obtenido exitosamente (puede ser una lista vacía).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ObtenerBasesDatosResponse"
+              examples:
+                catalogoCompleto:
+                  summary: Catálogo con los 4 valores sembrados
+                  value:
+                    data:
+                      - id: 1
+                        nombre: PPB
+                      - id: 2
+                        nombre: SURI
+                      - id: 3
+                        nombre: XAMAN
+                      - id: 4
+                        nombre: OTROS
+                    message: Bases de datos obtenidas exitosamente
+                    code: "200"
+                    success: true
+                catalogoVacio:
+                  summary: Catálogo sin registros activos
+                  value:
+                    data: []
+                    message: Bases de datos obtenidas exitosamente
+                    code: "200"
+                    success: true
+        "405":
+          description: Método HTTP no permitido (solo GET está soportado).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                data: null
+                message: Método HTTP no permitido. Use GET.
+                code: "405"
+                success: false
+        "500":
+          description: Error inesperado del servidor (p. ej. PostgreSQL no disponible).
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                data: null
+                message: Error al obtener bases de datos. Por favor contacte al administrador.
+                code: "500"
+                success: false
+components:
+  schemas:
+    BaseDatos:
+      type: object
+      required: [id, nombre]
+      additionalProperties: false
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          description: Identificador único de la base de datos.
+        nombre:
+          type: string
+          minLength: 1
+          description: Nombre/código de la base de datos (p. ej. "PPB", "SURI", "XAMAN", "OTROS").
+    ObtenerBasesDatosResponse:
+      type: object
+      required: [data, message, code, success]
+      additionalProperties: false
+      properties:
+        data:
+          type: array
+          items:
+            $ref: "#/components/schemas/BaseDatos"
+        message:
+          type: string
+        code:
+          type: string
+          pattern: "^[0-9]{3}$"
+        success:
+          type: boolean
+          const: true
+    ErrorResponse:
+      type: object
+      required: [data, message, code, success]
+      additionalProperties: false
+      properties:
+        data:
+          nullable: true
+          example: null
+        message:
+          type: string
+        code:
+          type: string
+          pattern: "^[0-9]{3}$"
+        success:
+          type: boolean
+          const: false

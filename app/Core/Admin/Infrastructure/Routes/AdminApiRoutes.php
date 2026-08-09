@@ -1,6 +1,7 @@
 <?php
 
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerAmbientesInAdapter;
+use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerBasesDatosInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPermisoInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPersonalInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposRequerimientosInAdapter;
@@ -39,6 +40,10 @@ Route::prefix('api/v1/admin')->group(function () {
     // Ambientes de Desarrollo
     Route::get('/ambientes-desarrollo', ObtenerAmbientesInAdapter::class)
         ->name('api.admin.ambientes-desarrollo.index');
+
+    // Bases de Datos
+    Route::get('/bases-datos', ObtenerBasesDatosInAdapter::class)
+        ->name('api.admin.bases-datos.index');
 
     // Add more admin routes here following the same pattern...
 

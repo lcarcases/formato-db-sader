@@ -1,0 +1,1 @@
+Dado que soy un trabajador de la DGTIC en la Sader, durante el proceso de llenado del formato de BD quiero poder seleccionar una base de datos a la cual quiero conectarme y tener acceso. Estas base d edatos pueden PPB,SURI,XAMAN y OTROS.
