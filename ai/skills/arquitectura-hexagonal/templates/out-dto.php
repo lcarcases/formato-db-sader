@@ -2,7 +2,9 @@
 
 namespace App\Core\Application\Dtos\Out;
 
-
+// Only primitive/scalar properties or nested OutDTOs here — never a Domain
+// Value Object/Entity. Instantiate this class ONLY in the InAdapter, after
+// calling the use case (never in the UseCase, Domain, or Infrastructure layers).
 readonly class {{OutDto}}
 {
     public function __construct(

@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL;
 
-use App\Core\Admin\Application\Ports\Out\AmbienteDesarrolloOutPort;
-use App\Core\Admin\Domain\ValueObjects\AmbienteVO;
-use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Models\AmbienteDesarrolloModel;
-use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\AmbienteDesarrolloRepository;
+use App\Core\Admin\Application\Ports\Out\BaseDatosOutPort;
+use App\Core\Admin\Domain\ValueObjects\BaseDatosVO;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Models\BaseDatosModel;
+use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\BaseDatosRepository;
 
 /**
- * Out Adapter for Ambiente de Desarrollo (PostgreSQL implementation)
+ * Out Adapter for Base de Datos (PostgreSQL implementation)
  *
  * Implements the OutPort interface defined in Application layer.
  * Delegates actual data access to the Repository and maps raw data to Domain objects.
@@ -24,22 +24,22 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\Ambiente
  * - This concrete implementation will be bound to the OutPort interface
  *   in the service provider for dependency injection
  */
-final readonly class AmbienteDesarrolloOutAdapter implements AmbienteDesarrolloOutPort
+final readonly class BaseDatosOutAdapter implements BaseDatosOutPort
 {
     public function __construct(
-        private AmbienteDesarrolloRepository $ambienteDesarrolloRepository,
+        private BaseDatosRepository $baseDatosRepository,
     ) {}
 
     /**
      * {@inheritDoc}
      */
-    public function obtenerAmbientesDesarrollo(): array
+    public function obtenerBasesDatos(): array
     {
-        $rawData = $this->ambienteDesarrolloRepository->obtenerAmbientesDesarrollo();
+        $rawData = $this->baseDatosRepository->obtenerBasesDatos();
 
         return array_map(
-            fn (AmbienteDesarrolloModel $model): AmbienteVO => new AmbienteVO(
-                id: $model->id_nu_ambiente_desarrollo,
+            fn (BaseDatosModel $model): BaseDatosVO => new BaseDatosVO(
+                id: $model->id_nu_base_datos,
                 nombre: $model->sn_nombre,
             ),
             $rawData

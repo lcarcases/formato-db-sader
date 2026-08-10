@@ -12,12 +12,12 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoRequ
  */
 final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimientoOutPort
 {
-    private TipoRequerimientoPostgresSQLRepository $repository;
+    private TipoRequerimientoPostgresSQLRepository $tipoRequerimientoPostgresSQLRepository;
 
     public function __construct(
-        TipoRequerimientoPostgresSQLRepository $repository
+        TipoRequerimientoPostgresSQLRepository $tipoRequerimientoPostgresSQLRepository
     ) {
-        $this->repository = $repository;
+        $this->tipoRequerimientoPostgresSQLRepository = $tipoRequerimientoPostgresSQLRepository;
     }
 
     /**
@@ -32,7 +32,7 @@ final class TipoRequerimientoPostgresSQLOutAdapter implements ITipoRequerimiento
     {
         try {
             // Get raw data from Repository
-            $rawData = $this->repository->buscarTodos();
+            $rawData = $this->tipoRequerimientoPostgresSQLRepository->buscarTodos();
 
             // Return raw data as-is (simple pattern - no entity mapping needed for catalog data)
             return $rawData;

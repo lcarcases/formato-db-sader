@@ -1,7 +1,7 @@
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan at:
-specs/003-catalogo-ambientes-desarrollo/plan.md
+specs/004-catalogo-bases-datos/plan.md
 <!-- SPECKIT END -->
 
 # SADER Database Access Permissions API - Development Guidelines

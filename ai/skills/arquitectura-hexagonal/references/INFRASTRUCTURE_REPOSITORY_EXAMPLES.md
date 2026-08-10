@@ -14,9 +14,15 @@
 
 ### ❌ What Repositories MUST NOT DO:
 1. **Implement OutPort interfaces** (that's OutAdapter's job!)
-2. **Create/return Domain Entities** (that's OutAdapter's job!)
+2. **Create/return Domain Entities or Value Objects** (that's OutAdapter's job! — this applies to
+   Eloquent-based repositories too: mapping an Eloquent model to a VO/Entity belongs in the
+   OutAdapter, never inline in the repository method)
 3. **Have business logic** (that's Domain/UseCase job!)
 4. **Know about Domain layer** (only about database!)
+
+> See [INFRASTRUCTURE_OUTADAPTER_EXAMPLES.md](INFRASTRUCTURE_OUTADAPTER_EXAMPLES.md) for the naming
+> convention OutAdapters must use when injecting a Repository (`${nameRepositoryClass}`, never
+> `$repository`) and for where the raw-data → Domain mapping shown above actually belongs.
 
 ---
 
@@ -93,6 +99,44 @@ final class TipoRequerimientoPostgresSQLRepository implements ITipoRequerimiento
                 requerimiento: (string) $row->requerimiento
             );
         })->toArray();
+    }
+}
+```
+
+### ❌ WRONG: Same Mistake with Eloquent (not just Query Builder)
+
+The rule applies identically when the repository uses Eloquent instead of `DB::table()` —
+mapping to a Value Object/Entity inside the repository is still wrong, only the query style differs:
+
+```php
+// ❌ WRONG: Repository maps Eloquent models to a domain Value Object
+final class BaseDatosRepository
+{
+    public function obtenerBaseDatos(): array
+    {
+        return BaseDatosModel::query()
+            ->where('ind_activo', 1)
+            ->get()
+            // ❌ Repository should NOT build VOs/Entities — return raw models instead
+            ->map(fn (BaseDatosModel $model): BaseDatosVO => new BaseDatosVO(
+                id: $model->id_nu_base_datos,
+                nombre: $model->sn_nombre,
+            ))
+            ->all();
+    }
+}
+```
+
+```php
+// ✅ CORRECT: Repository returns raw Eloquent models; OutAdapter maps to the VO
+final class BaseDatosRepository
+{
+    public function obtenerBaseDatos(): array
+    {
+        return BaseDatosModel::query()
+            ->where('ind_activo', 1)
+            ->get()
+            ->all(); // ✅ Raw Eloquent models, NOT VOs/Entities
     }
 }
 ```
@@ -223,3 +267,4 @@ final class SolicitudMySQLRepository
 |------|--------|----------|
 | Repository | `{Concept}PostgresSQLRepository` or `{Concept}MySQLRepository` | `app/Core/{Module}/Infrastructure/Adapters/Out/{DB}/Repositories/` |
 | OutAdapter | `{Concept}PostgresSQLOutAdapter` or `{Concept}MySQLOutAdapter` | `app/Core/{Module}/Infrastructure/Adapters/Out/{DB}/` |
+| OutAdapter's injected Repository property | `${nameRepositoryClass}` (camelCase of the Repository class, never generic `$repository`) — e.g. `private BaseDatosRepository $baseDatosRepository` | Constructor of the `*OutAdapter` class |

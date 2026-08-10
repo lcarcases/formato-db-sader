@@ -275,17 +275,18 @@ class TipoRequerimientoOutDto
     }
 }
 
-// UseCase returns array of DTOs
+// UseCase returns raw data to make it more reusable
 class ObtenerTiposRequerimientosUseCase
 {
     public function obtener(): array
     {
-        $data = $this->repository->obtenerTodos();
+        $data = $this->adapter->obtenerTodos();
         
-        return array_map(
-            fn($row) => new TipoRequerimientoOutDto($row->id, $row->nombre),
-            $data
-        );
+        $info = new \stdClass();
+        $info->nombreRequerimiento = $data["nombreRequerimiento"];
+        $info->tipoRequerimiento = $data["tipoRequerimiento"];
+
+        return info;
     }
 }
 ```

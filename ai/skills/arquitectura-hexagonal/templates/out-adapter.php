@@ -16,7 +16,8 @@ use App\Core\{{Module}}\Infrastructure\Adapters\Out\{{Database}}\Repositories\{{
  * ✅ MUST: Map raw data ↔ Domain objects
  * ✅ MUST: Be injected in UseCases (via OutPort interface)
  * ✅ MUST: Be bound in ServiceProvider (OutPort → OutAdapter)
- * 
+ * ✅ MUST: Name the injected Repository property after its class (${nameRepositoryClass}, never $repository)
+ *
  * ❌ MUST NOT: Access database directly (use Repository!)
  * ❌ MUST NOT: Be skipped/omitted (OutAdapter is MANDATORY!)
  * ❌ MUST NOT: Contain business logic
@@ -25,7 +26,7 @@ final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
 {
     // ✅ Uses Repository (NOT extends, just uses)
     public function __construct(
-        private {{Entity}}{{Database}}Repository $repository
+        private {{Entity}}{{Database}}Repository ${{entityCamelCase}}{{Database}}Repository
     ) {}
 
     /**
@@ -34,7 +35,7 @@ final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
     public function obtenerTodos(): array
     {
         // Get raw data from Repository
-        $rawData = $this->repository->findAll();
+        $rawData = $this->{{entityCamelCase}}{{Database}}Repository->findAll();
         
         // ✅ Option 1: Return as-is (if no transformation needed)
         return $rawData;
@@ -54,7 +55,7 @@ final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
      */
     public function buscarPor{{Criterio}}(string $criterio): ?array
     {
-        $rawData = $this->repository->findBy{{Criterio}}($criterio);
+        $rawData = $this->{{entityCamelCase}}{{Database}}Repository->findBy{{Criterio}}($criterio);
         
         if (!$rawData) {
             return null;
@@ -80,7 +81,7 @@ final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
         ];
         
         // ✅ Repository handles the insert
-        return $this->repository->insertar($dataParaInsertar);
+        return $this->{{entityCamelCase}}{{Database}}Repository->insertar($dataParaInsertar);
     }
 }
 
@@ -96,7 +97,7 @@ use App\Core\{{Module}}\Domain\Vo\{{ValueObject}};
 final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
 {
     public function __construct(
-        private {{Entity}}{{Database}}Repository $repository
+        private {{Entity}}{{Database}}Repository ${{entityCamelCase}}{{Database}}Repository
     ) {}
 
     // ✅ Receives Domain Entity, transforms to array, passes to Repository
@@ -108,13 +109,13 @@ final class {{Entity}}{{Database}}OutAdapter implements I{{Entity}}OutPort
             'created_at' => now()
         ];
         
-        return $this->repository->insertar($data);
+        return $this->{{entityCamelCase}}{{Database}}Repository->insertar($data);
     }
     
     // ✅ Gets raw data from Repository, maps to Domain Entity
     public function buscarPorId(int $id): ?{{Entity}}Entity
     {
-        $rawData = $this->repository->findById($id);
+        $rawData = $this->{{entityCamelCase}}{{Database}}Repository->findById($id);
         
         if (!$rawData) {
             return null;

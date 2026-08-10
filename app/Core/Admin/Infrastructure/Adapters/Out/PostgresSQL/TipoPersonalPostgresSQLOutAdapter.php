@@ -30,15 +30,15 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPers
  */
 final class TipoPersonalPostgresSQLOutAdapter implements ITipoPersonalOutPort
 {
-    private TipoPersonalPostgresSQLRepository $repository;
+    private TipoPersonalPostgresSQLRepository $tipoPersonalPostgresSQLRepository;
 
     /**
-     * @param  TipoPersonalPostgresSQLRepository  $repository  Repository for database access
+     * @param  TipoPersonalPostgresSQLRepository  $tipoPersonalPostgresSQLRepository  Repository for database access
      */
     public function __construct(
-        TipoPersonalPostgresSQLRepository $repository
+        TipoPersonalPostgresSQLRepository $tipoPersonalPostgresSQLRepository
     ) {
-        $this->repository = $repository;
+        $this->tipoPersonalPostgresSQLRepository = $tipoPersonalPostgresSQLRepository;
     }
 
     /**
@@ -55,7 +55,7 @@ final class TipoPersonalPostgresSQLOutAdapter implements ITipoPersonalOutPort
     {
         try {
             // Get raw data from Repository
-            $rawData = $this->repository->buscarTodos();
+            $rawData = $this->tipoPersonalPostgresSQLRepository->buscarTodos();
 
             // Return raw data as-is (simple pattern - no entity mapping needed for catalog data)
             return $rawData;

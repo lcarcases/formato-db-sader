@@ -15,16 +15,16 @@ use App\Core\Admin\Infrastructure\Adapters\Out\PostgresSQL\Repositories\TipoPerm
  */
 final class TipoPermisoPostgresSQLOutAdapter implements ITipoPermisoOutPort
 {
-    private TipoPermisoPostgresSQLRepository $repository;
+    private TipoPermisoPostgresSQLRepository $tipoPermisoPostgresSQLRepository;
 
     /**
      * Constructor del adaptador
      *
-     * @param  TipoPermisoPostgresSQLRepository  $repository  Repositorio de PostgreSQL
+     * @param  TipoPermisoPostgresSQLRepository  $tipoPermisoPostgresSQLRepository  Repositorio de PostgreSQL
      */
-    public function __construct(TipoPermisoPostgresSQLRepository $repository)
+    public function __construct(TipoPermisoPostgresSQLRepository $tipoPermisoPostgresSQLRepository)
     {
-        $this->repository = $repository;
+        $this->tipoPermisoPostgresSQLRepository = $tipoPermisoPostgresSQLRepository;
     }
 
     /**
@@ -33,7 +33,7 @@ final class TipoPermisoPostgresSQLOutAdapter implements ITipoPermisoOutPort
     public function obtenerTodos(): array
     {
         try {
-            $rawData = $this->repository->buscarTodos();
+            $rawData = $this->tipoPermisoPostgresSQLRepository->buscarTodos();
 
             // Map database columns to domain-friendly names
             return array_map(function ($row) {
@@ -59,7 +59,7 @@ final class TipoPermisoPostgresSQLOutAdapter implements ITipoPermisoOutPort
     public function obtenerPorId(int $id): ?array
     {
         try {
-            $row = $this->repository->buscarPorId($id);
+            $row = $this->tipoPermisoPostgresSQLRepository->buscarPorId($id);
 
             if ($row === null) {
                 return null;

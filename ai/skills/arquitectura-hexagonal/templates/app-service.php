@@ -7,11 +7,12 @@ use App\Core\Domain\Entities\{{Entity}};
 
 class {{AppService}}
 {
-    private {{OutPort}} $outPort;
+    // ✅ Property named after the OutPort interface, NOT generic "$outPort"
+    private {{OutPort}} ${{outPortCamelCase}};
 
-    public function __construct({{OutPort}} $outPort)
+    public function __construct({{OutPort}} ${{outPortCamelCase}})
     {
-        $this->outPort = $outPort;
+        $this->{{outPortCamelCase}} = ${{outPortCamelCase}};
     }
 
     public function ejecutarLogicaCompartida({{Entity}} $entidad): void

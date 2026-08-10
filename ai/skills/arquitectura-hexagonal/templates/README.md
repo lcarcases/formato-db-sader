@@ -61,6 +61,7 @@ Este directorio contiene plantillas para cada tipo de clase en la arquitectura h
 - `{{OutDto}}` - Nombre del DTO de salida (ej: `SolicitudOutDTO`)
 - `{{InPort}}` - Nombre del puerto de entrada (ej: `IGenerarSolicitudInPort`)
 - `{{OutPort}}` - Nombre del puerto de salida (ej: `IGenerarSolicitudOutPort`)
+- `{{outPortCamelCase}}` - camelCase del `{{OutPort}}` inyectado, usado como nombre de la propiedad/parámetro (ej: `generarSolicitudOutPort`) — NUNCA usar el genérico `$outPort`
 - `{{Criterio}}` - Criterio de búsqueda (ej: `Curp`, `Id`, `Email`)
 - `{{DomainException}}` - Excepción de dominio (ej: `CURPInvalidaException`)
 - `{{ValueObject}}` - Value Object (ej: `DireccionVO`, `CURPVO`)
@@ -73,7 +74,7 @@ Este directorio contiene plantillas para cada tipo de clase en la arquitectura h
 ```php
 class {{UseCase}} implements {{InPort}}
 {
-    private {{OutPort}} $outPort;
+    private {{OutPort}} ${{outPortCamelCase}};
     
     public function execute({{InDto}} $dto): {{OutDto}}
 ```
@@ -83,7 +84,7 @@ class {{UseCase}} implements {{InPort}}
 ```php
 class GenerarSolicitud implements IGenerarSolicitudInPort
 {
-    private IGenerarSolicitudOutPort $outPort;
+    private IGenerarSolicitudOutPort $generarSolicitudOutPort;
     
     public function execute(GenerarSolicitudInDTO $dto): SolicitudOutDTO
 ```

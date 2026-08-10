@@ -520,6 +520,58 @@ MySQLSolicitudRepository        // Wrong order
 - Used by OutAdapters
 - Contains raw queries
 
+#### OutAdapter's injected Repository property
+
+**Format:** `${nameRepositoryClass}` — camelCase of the injected Repository's class name, never
+the generic `$repository`.
+
+```php
+// ✅ GOOD
+final class SolicitudMySQLOutAdapter implements ISolicitudOutPort
+{
+    public function __construct(
+        private SolicitudMySQLRepository $solicitudMySQLRepository
+    ) {}
+}
+
+// ❌ BAD
+final class SolicitudMySQLOutAdapter implements ISolicitudOutPort
+{
+    public function __construct(
+        private SolicitudMySQLRepository $repository   // Generic name, loses which Repository it is
+    ) {}
+}
+```
+
+#### UseCase's injected OutPort property
+
+**Format:** `${namePortInterface}` — camelCase of the injected OutPort interface's name, never the
+generic `$outPort`. Same rationale as the Repository property above: a generic name loses which
+port is actually injected once a UseCase depends on more than one.
+
+```php
+// ✅ GOOD
+final readonly class ObtenerBasesDatosUseCase
+{
+    public function __construct(
+        private BaseDatosOutPort $baseDatosOutPort
+    ) {}
+
+    public function execute(): array
+    {
+        return $this->baseDatosOutPort->obtenerBasesDatos();
+    }
+}
+
+// ❌ BAD
+final readonly class ObtenerBasesDatosUseCase
+{
+    public function __construct(
+        private BaseDatosOutPort $outPort   // Generic name, loses which OutPort it is
+    ) {}
+}
+```
+
 ### Method Naming
 
 #### Entity Methods

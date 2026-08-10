@@ -19,7 +19,8 @@ use App\Core\{{Module}}\Domain\Exceptions\{{DomainException}};
  * ✅ MUST: Depend on OutPort interfaces (never on concrete Repositories or OutAdapters)
  * ✅ MUST: Use standard constructor (NOT private readonly)
  * ✅ MUST: Declare private property separately from constructor
- * 
+ * ✅ MUST: Name the injected OutPort property after its interface (${namePortInterface}), never generic $outPort
+ *
  * ❌ MUST NOT: Implement InPort interface UNLESS using Decorator pattern
  * ❌ MUST NOT: Return DTOs (reduces reusability - use raw arrays instead)
  * ❌ MUST NOT: Catch exceptions (only InAdapter catches exceptions)
@@ -31,14 +32,14 @@ use App\Core\{{Module}}\Domain\Exceptions\{{DomainException}};
 // ✅ CORRECT: NO interface implementation for simple CRUD
 final class {{UseCase}}
 {
-    // ✅ Declare private property separately
-    private {{OutPort}} $outPort;
+    // ✅ Declare private property separately, named after the OutPort interface
+    private {{OutPort}} ${{outPortCamelCase}};
 
     // ✅ Standard constructor (NOT private readonly)
     public function __construct(
-        {{OutPort}} $outPort
+        {{OutPort}} ${{outPortCamelCase}}
     ) {
-        $this->outPort = $outPort;
+        $this->{{outPortCamelCase}} = ${{outPortCamelCase}};
     }
 
     // ✅ Returns RAW array (not DTO!)
@@ -49,13 +50,13 @@ final class {{UseCase}}
         $this->validar($dto);
 
         // 2. Recuperar datos a través del OutPort
-        $datos = $this->outPort->buscarPor{{Criterio}}($dto->criterio);
+        $datos = $this->{{outPortCamelCase}}->buscarPor{{Criterio}}($dto->criterio);
 
         // 3. Procesar lógica de negocio
         // ... (call domain services, entities, etc.)
 
         // 4. Persistir a través del OutPort (if needed)
-        // $this->outPort->guardar($datos);
+        // $this->{{outPortCamelCase}}->guardar($datos);
 
         // 5. Retornar RAW array (NOT DTO!)
         return $datos;
