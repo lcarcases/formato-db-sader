@@ -11,7 +11,7 @@ use Tests\TestCase;
 
 /**
  * TipoPermisoPostgresSQLRepositoryIntegrationTest
- * 
+ *
  * Tests de integración para TipoPermisoPostgresSQLRepository
  */
 final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
@@ -23,7 +23,7 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TipoPermisoPostgresSQLRepository();
+        $this->repository = new TipoPermisoPostgresSQLRepository;
     }
 
     public function test_buscar_todos_retorna_solo_tipos_permiso_activos(): void
@@ -37,7 +37,7 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
         // Assert
         $this->assertIsArray($resultado);
         $this->assertCount(4, $resultado);
-        
+
         foreach ($resultado as $tipo) {
             $this->assertTrue($tipo['activo']);
         }
@@ -116,26 +116,26 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
                 'id_nu_tipo_permiso' => 1,
                 'ln_nombre' => 'Consulta',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de solo lectura'
+                'sn_descripcion' => 'Permiso de solo lectura',
             ],
             [
                 'id_nu_tipo_permiso' => 2,
                 'ln_nombre' => 'Cambios',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de modificación'
+                'sn_descripcion' => 'Permiso de modificación',
             ],
             [
                 'id_nu_tipo_permiso' => 3,
                 'ln_nombre' => 'Eliminación',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de eliminación'
+                'sn_descripcion' => 'Permiso de eliminación',
             ],
             [
                 'id_nu_tipo_permiso' => 4,
                 'ln_nombre' => 'Consulta y Cambios',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso combinado'
-            ]
+                'sn_descripcion' => 'Permiso combinado',
+            ],
         ]);
     }
 
@@ -145,12 +145,12 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
     private function seedTiposPermisoConInactivos(): void
     {
         $this->seedTiposPermiso();
-        
+
         DB::table('tb_cat_tipo_permiso')->insert([
             'id_nu_tipo_permiso' => 5,
             'ln_nombre' => 'Admin Total',
             'ind_activo' => false,
-            'sn_descripcion' => 'Permiso deshabilitado'
+            'sn_descripcion' => 'Permiso deshabilitado',
         ]);
     }
 }

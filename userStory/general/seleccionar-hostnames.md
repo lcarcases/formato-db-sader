@@ -1,0 +1,1 @@
+Dado que soy un trabajador de la DGTIC en la Sader, durante el proceso de llenado del formato de BD quiero poder seleccionar una hostname al cual quiero conectarme y tener acceso. Estos hostnames pueden ser pgrdesbds09,sridesbds09,pgrprdbdsmz02,sriprdbdsmz02,divprdbds01,pgrqabds08, sriqabds08, 10.1.35.50, 10.1.21.95, 10.1.20.25, 10.54.49.100.

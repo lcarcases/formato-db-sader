@@ -5,18 +5,19 @@ declare(strict_types=1);
 namespace Tests\Unit\Core\Admin\Domain\Entities;
 
 use App\Core\Admin\Domain\Entities\TipoPersonal;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
  * TipoPersonalTest
- * 
+ *
  * Unit tests for TipoPersonal domain entity.
- * 
+ *
  * Tests Entity behavior:
  * - Constructor validation (invariants)
  * - Business logic methods (isActive, getDisplayName)
  * - Immutability (readonly properties)
- * 
+ *
  * ✅ Unit Test Pattern:
  * - No dependencies (pure PHP entity)
  * - Fast execution (no database or HTTP calls)
@@ -152,7 +153,7 @@ final class TipoPersonalTest extends TestCase
     /**
      * @dataProvider activeTiposPersonalProvider
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('activeTiposPersonalProvider')]
+    #[DataProvider('activeTiposPersonalProvider')]
     public function test_it_handles_various_active_estados(bool $activo, bool $expected): void
     {
         // Arrange
@@ -181,7 +182,7 @@ final class TipoPersonalTest extends TestCase
     /**
      * @dataProvider nombreFormattingProvider
      */
-    #[\PHPUnit\Framework\Attributes\DataProvider('nombreFormattingProvider')]
+    #[DataProvider('nombreFormattingProvider')]
     public function test_it_formats_nombre_correctly(string $nombre, string $expected): void
     {
         // Arrange

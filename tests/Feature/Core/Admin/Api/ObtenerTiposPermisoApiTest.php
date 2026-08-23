@@ -10,7 +10,7 @@ use Tests\TestCase;
 
 /**
  * ObtenerTiposPermisoApiTest
- * 
+ *
  * Tests de feature para el endpoint GET /api/v1/admin/tipos-permiso
  */
 final class ObtenerTiposPermisoApiTest extends TestCase
@@ -38,15 +38,15 @@ final class ObtenerTiposPermisoApiTest extends TestCase
                         'id',
                         'nombre',
                         'activo',
-                        'descripcion'
-                    ]
-                ]
-            ]
+                        'descripcion',
+                    ],
+                ],
+            ],
         ]);
 
         $response->assertJsonPath('success', true);
         $response->assertJsonPath('message', 'Se obtuvieron los tipos de permiso correctamente.');
-        
+
         $data = $response->json('data.tiposPermiso');
         $this->assertCount(4, $data);
     }
@@ -61,10 +61,10 @@ final class ObtenerTiposPermisoApiTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        
+
         $tiposPermiso = $response->json('data.tiposPermiso');
         $this->assertCount(4, $tiposPermiso);
-        
+
         foreach ($tiposPermiso as $tipo) {
             $this->assertTrue($tipo['activo']);
         }
@@ -80,20 +80,20 @@ final class ObtenerTiposPermisoApiTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        
+
         $tiposPermiso = $response->json('data.tiposPermiso');
         $ids = array_column($tiposPermiso, 'id');
-        
+
         // BR-002: Results must be ordered by ID ascending
         $this->assertEquals([1, 2, 3, 4], $ids);
-        
+
         // Verify the names match the seed data in ID order
         $nombres = array_column($tiposPermiso, 'nombre');
         $this->assertEquals([
             'Consulta',           // ID 1
             'Cambios',            // ID 2
             'Eliminación',        // ID 3
-            'Consulta y Cambios'  // ID 4
+            'Consulta y Cambios',  // ID 4
         ], $nombres);
     }
 
@@ -115,7 +115,7 @@ final class ObtenerTiposPermisoApiTest extends TestCase
             'id_nu_tipo_permiso' => 1,
             'ln_nombre' => 'Consulta',
             'ind_activo' => true,
-            'sn_descripcion' => 'Permiso de solo lectura'
+            'sn_descripcion' => 'Permiso de solo lectura',
         ]);
 
         // Act
@@ -123,9 +123,9 @@ final class ObtenerTiposPermisoApiTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        
+
         $tipoPermiso = $response->json('data.tiposPermiso.0');
-        
+
         $this->assertEquals(1, $tipoPermiso['id']);
         $this->assertEquals('Consulta', $tipoPermiso['nombre']);
         $this->assertTrue($tipoPermiso['activo']);
@@ -139,7 +139,7 @@ final class ObtenerTiposPermisoApiTest extends TestCase
             'id_nu_tipo_permiso' => 1,
             'ln_nombre' => 'Consulta',
             'ind_activo' => true,
-            'sn_descripcion' => null
+            'sn_descripcion' => null,
         ]);
 
         // Act
@@ -147,7 +147,7 @@ final class ObtenerTiposPermisoApiTest extends TestCase
 
         // Assert
         $response->assertStatus(200);
-        
+
         $tipoPermiso = $response->json('data.tiposPermiso.0');
         $this->assertNull($tipoPermiso['descripcion']);
     }
@@ -162,26 +162,26 @@ final class ObtenerTiposPermisoApiTest extends TestCase
                 'id_nu_tipo_permiso' => 1,
                 'ln_nombre' => 'Consulta',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de solo lectura'
+                'sn_descripcion' => 'Permiso de solo lectura',
             ],
             [
                 'id_nu_tipo_permiso' => 2,
                 'ln_nombre' => 'Cambios',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de modificación'
+                'sn_descripcion' => 'Permiso de modificación',
             ],
             [
                 'id_nu_tipo_permiso' => 3,
                 'ln_nombre' => 'Eliminación',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso de eliminación'
+                'sn_descripcion' => 'Permiso de eliminación',
             ],
             [
                 'id_nu_tipo_permiso' => 4,
                 'ln_nombre' => 'Consulta y Cambios',
                 'ind_activo' => true,
-                'sn_descripcion' => 'Permiso combinado'
-            ]
+                'sn_descripcion' => 'Permiso combinado',
+            ],
         ]);
     }
 
@@ -191,12 +191,12 @@ final class ObtenerTiposPermisoApiTest extends TestCase
     private function seedTiposPermisoConInactivos(): void
     {
         $this->seedTiposPermiso();
-        
+
         DB::table('tb_cat_tipo_permiso')->insert([
             'id_nu_tipo_permiso' => 5,
             'ln_nombre' => 'Admin Total',
             'ind_activo' => false,
-            'sn_descripcion' => 'Permiso deshabilitado'
+            'sn_descripcion' => 'Permiso deshabilitado',
         ]);
     }
 }

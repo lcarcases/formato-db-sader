@@ -2,6 +2,7 @@
 
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerAmbientesInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerBasesDatosInAdapter;
+use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerHostnamesInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPermisoInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPersonalInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposRequerimientosInAdapter;
@@ -44,6 +45,10 @@ Route::prefix('api/v1/admin')->group(function () {
     // Bases de Datos
     Route::get('/bases-datos', ObtenerBasesDatosInAdapter::class)
         ->name('api.admin.bases-datos.index');
+
+    // Hostnames
+    Route::get('/hostnames', ObtenerHostnamesInAdapter::class)
+        ->name('api.admin.hostnames.index');
 
     // Add more admin routes here following the same pattern...
 

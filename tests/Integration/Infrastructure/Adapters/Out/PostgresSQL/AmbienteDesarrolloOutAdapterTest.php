@@ -25,7 +25,7 @@ final class AmbienteDesarrolloOutAdapterTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $repository = new AmbienteDesarrolloRepository();
+        $repository = new AmbienteDesarrolloRepository;
         $this->adapter = new AmbienteDesarrolloOutAdapter($repository);
     }
 
@@ -33,7 +33,7 @@ final class AmbienteDesarrolloOutAdapterTest extends TestCase
     {
         // Arrange: Clear seed data and insert test records
         AmbienteDesarrolloModel::query()->delete();
-        
+
         AmbienteDesarrolloModel::create([
             'sn_nombre' => 'TestAdapterActivo1',
             'ind_activo' => 1,
@@ -54,8 +54,8 @@ final class AmbienteDesarrolloOutAdapterTest extends TestCase
         $this->assertIsArray($result);
         $this->assertCount(2, $result);
         $this->assertContainsOnlyInstancesOf(AmbienteVO::class, $result);
-        
-        $nombres = array_map(fn(AmbienteVO $vo) => $vo->nombre, $result);
+
+        $nombres = array_map(fn (AmbienteVO $vo) => $vo->nombre, $result);
         $this->assertContains('TestAdapterActivo1', $nombres);
         $this->assertContains('TestAdapterActivo2', $nombres);
         $this->assertNotContains('TestAdapterInactivo', $nombres);
@@ -65,7 +65,7 @@ final class AmbienteDesarrolloOutAdapterTest extends TestCase
     {
         // Arrange: Clear seed data and insert test records
         AmbienteDesarrolloModel::query()->delete();
-        
+
         AmbienteDesarrolloModel::create([
             'sn_nombre' => 'TestAdapterVO1',
             'ind_activo' => 1,

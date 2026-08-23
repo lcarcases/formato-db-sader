@@ -10,16 +10,16 @@ use Tests\TestCase;
 
 /**
  * TipoPersonalPostgresSQLRepositoryIntegrationTest
- * 
+ *
  * Integration tests for TipoPersonalPostgresSQLRepository.
- * 
+ *
  * Tests Database Integration:
  * - Query execution with PostgreSQL
  * - Active filtering (ind_activo = true)
  * - Ordering (id ASC)
  * - Field mapping
  * - Edge cases (empty table, inactive records)
- * 
+ *
  * ✅ Integration Test Pattern:
  * - Uses RefreshDatabase trait
  * - Tests real database queries
@@ -34,7 +34,7 @@ final class TipoPersonalPostgresSQLRepositoryIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TipoPersonalPostgresSQLRepository();
+        $this->repository = new TipoPersonalPostgresSQLRepository;
     }
 
     public function test_it_returns_all_active_tipos_personal_ordered_by_id(): void
@@ -81,7 +81,7 @@ final class TipoPersonalPostgresSQLRepositoryIntegrationTest extends TestCase
         $this->assertSame('Activo2', $result[1]->sn_nombre);
 
         // Verify inactive record is not included
-        $nombres = array_map(fn($tipo) => $tipo->sn_nombre, $result);
+        $nombres = array_map(fn ($tipo) => $tipo->sn_nombre, $result);
         $this->assertNotContains('Inactivo', $nombres);
     }
 
@@ -164,7 +164,7 @@ final class TipoPersonalPostgresSQLRepositoryIntegrationTest extends TestCase
             'sn_descripcion' => 'Find by ID test',
             'ind_activo' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ]);
 
         // Act

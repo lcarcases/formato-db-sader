@@ -4,22 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Core\Admin\Application\UseCases;
 
-use App\Core\Admin\Application\UseCases\ObtenerTiposPersonalUseCase;
 use App\Core\Admin\Application\Ports\Out\ITipoPersonalOutPort;
-use Tests\TestCase;
+use App\Core\Admin\Application\UseCases\ObtenerTiposPersonalUseCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use Tests\TestCase;
 
 /**
  * ObtenerTiposPersonalUseCaseTest
- * 
+ *
  * Unit tests for ObtenerTiposPersonalUseCase.
- * 
+ *
  * Tests Use Case orchestration:
  * - Delegates to OutPort correctly
  * - Returns raw data from OutPort
  * - Propagates exceptions
  * - Logs execution with structured context
- * 
+ *
  * ✅ Unit Test Pattern:
  * - Mock OutPort dependency (isolated test)
  * - Fast execution (no database)
@@ -28,6 +28,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 final class ObtenerTiposPersonalUseCaseTest extends TestCase
 {
     private ITipoPersonalOutPort|MockObject $tipoPersonalOutPort;
+
     private ObtenerTiposPersonalUseCase $useCase;
 
     protected function setUp(): void
@@ -51,7 +52,7 @@ final class ObtenerTiposPersonalUseCaseTest extends TestCase
                 'sn_descripcion' => 'Personal de base',
                 'ind_activo' => true,
                 'created_at' => '2026-05-16 10:00:00',
-                'updated_at' => '2026-05-16 10:00:00'
+                'updated_at' => '2026-05-16 10:00:00',
             ],
             (object) [
                 'id_nu_tipo_personal' => 2,
@@ -59,8 +60,8 @@ final class ObtenerTiposPersonalUseCaseTest extends TestCase
                 'sn_descripcion' => 'Personal de enlace',
                 'ind_activo' => true,
                 'created_at' => '2026-05-16 10:00:00',
-                'updated_at' => '2026-05-16 10:00:00'
-            ]
+                'updated_at' => '2026-05-16 10:00:00',
+            ],
         ];
 
         $this->tipoPersonalOutPort
@@ -91,7 +92,6 @@ final class ObtenerTiposPersonalUseCaseTest extends TestCase
         $this->assertIsArray($result);
         $this->assertEmpty($result);
     }
-
 
     public function it_propagates_exception_from_out_port(): void
     {
@@ -155,7 +155,7 @@ final class ObtenerTiposPersonalUseCaseTest extends TestCase
     {
         // Arrange
         $originalData = [
-            (object) ['id_nu_tipo_personal' => 1, 'sn_nombre' => 'Base', 'sn_descripcion' => 'Test', 'ind_activo' => true, 'created_at' => '2026-05-16', 'updated_at' => '2026-05-16']
+            (object) ['id_nu_tipo_personal' => 1, 'sn_nombre' => 'Base', 'sn_descripcion' => 'Test', 'ind_activo' => true, 'created_at' => '2026-05-16', 'updated_at' => '2026-05-16'],
         ];
 
         $this->tipoPersonalOutPort
