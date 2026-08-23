@@ -9,7 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * TipoPermisoTest
- * 
+ *
  * Tests unitarios para la entidad TipoPermiso
  */
 final class TipoPermisoTest extends TestCase

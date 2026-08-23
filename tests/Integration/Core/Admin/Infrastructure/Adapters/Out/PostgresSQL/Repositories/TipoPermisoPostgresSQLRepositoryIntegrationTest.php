@@ -10,16 +10,16 @@ use Tests\TestCase;
 
 /**
  * TipoPermisoPostgresSQLRepositoryIntegrationTest
- * 
+ *
  * Integration tests for TipoPermisoPostgresSQLRepository.
- * 
+ *
  * Tests Database Integration:
  * - Query execution with PostgreSQL
  * - Active filtering (ind_activo = true)
  * - Ordering (id ASC)
  * - Field mapping
  * - Edge cases (empty table, inactive records)
- * 
+ *
  * ✅ Integration Test Pattern:
  * - Uses RefreshDatabase trait
  * - Tests real database queries
@@ -34,7 +34,7 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new TipoPermisoPostgresSQLRepository();
+        $this->repository = new TipoPermisoPostgresSQLRepository;
     }
 
     public function test_it_retrieves_all_active_tipos_permiso_ordered_by_id(): void
@@ -78,14 +78,14 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
 
         // Assert - only active records
         $this->assertCount(2, $result);
-        
+
         // Verify all returned records are active
         foreach ($result as $item) {
             $this->assertTrue($item->ind_activo);
         }
-        
+
         // Verify names
-        $nombres = array_map(fn($item) => $item->ln_nombre, $result);
+        $nombres = array_map(fn ($item) => $item->ln_nombre, $result);
         $this->assertContains('Activo1', $nombres);
         $this->assertContains('Activo2', $nombres);
         $this->assertNotContains('Inactivo1', $nombres);
@@ -142,7 +142,7 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
             'sn_descripcion' => 'Find by ID test',
             'ind_activo' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ], 'id_nu_tipo_permiso');
 
         // Act
@@ -181,7 +181,7 @@ final class TipoPermisoPostgresSQLRepositoryIntegrationTest extends TestCase
         // Assert
         $this->assertCount(1, $result);
         $this->assertInstanceOf(\stdClass::class, $result[0]);
-        
+
         // Verify all expected properties exist
         $this->assertObjectHasProperty('id_nu_tipo_permiso', $result[0]);
         $this->assertObjectHasProperty('ln_nombre', $result[0]);

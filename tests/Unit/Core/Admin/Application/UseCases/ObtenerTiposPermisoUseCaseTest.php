@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Tests\Unit\Core\Admin\Application\UseCases;
 
-use App\Core\Admin\Application\UseCases\ObtenerTiposPermisoUseCase;
 use App\Core\Admin\Application\Ports\Out\ITipoPermisoOutPort;
-use PHPUnit\Framework\TestCase;
+use App\Core\Admin\Application\UseCases\ObtenerTiposPermisoUseCase;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 /**
  * ObtenerTiposPermisoUseCaseTest
- * 
+ *
  * Tests unitarios para el caso de uso ObtenerTiposPermisoUseCase
  */
 final class ObtenerTiposPermisoUseCaseTest extends TestCase
 {
     private MockObject|ITipoPermisoOutPort $tipoPermisoOutPortMock;
+
     private ObtenerTiposPermisoUseCase $useCase;
 
     protected function setUp(): void
@@ -51,26 +52,26 @@ final class ObtenerTiposPermisoUseCaseTest extends TestCase
                 'id' => 1,
                 'nombre' => 'Consulta',
                 'activo' => true,
-                'descripcion' => 'Permiso de solo lectura'
+                'descripcion' => 'Permiso de solo lectura',
             ],
             [
                 'id' => 2,
                 'nombre' => 'Cambios',
                 'activo' => true,
-                'descripcion' => 'Permiso de modificación'
+                'descripcion' => 'Permiso de modificación',
             ],
             [
                 'id' => 3,
                 'nombre' => 'Eliminación',
                 'activo' => true,
-                'descripcion' => 'Permiso de eliminación'
+                'descripcion' => 'Permiso de eliminación',
             ],
             [
                 'id' => 4,
                 'nombre' => 'Consulta y Cambios',
                 'activo' => true,
-                'descripcion' => 'Permiso combinado'
-            ]
+                'descripcion' => 'Permiso combinado',
+            ],
         ];
 
         $this->tipoPermisoOutPortMock
@@ -91,7 +92,7 @@ final class ObtenerTiposPermisoUseCaseTest extends TestCase
     {
         // Arrange
         $excepcionEsperada = new \RuntimeException('Error de conexión a base de datos');
-        
+
         $this->tipoPermisoOutPortMock
             ->expects($this->once())
             ->method('obtenerTodos')
@@ -113,14 +114,14 @@ final class ObtenerTiposPermisoUseCaseTest extends TestCase
                 'id' => 1,
                 'nombre' => 'Consulta',
                 'activo' => true,
-                'descripcion' => null
+                'descripcion' => null,
             ],
             [
                 'id' => 2,
                 'nombre' => 'Cambios',
                 'activo' => true,
-                'descripcion' => null
-            ]
+                'descripcion' => null,
+            ],
         ];
 
         $this->tipoPermisoOutPortMock

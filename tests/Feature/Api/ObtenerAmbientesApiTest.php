@@ -102,7 +102,7 @@ final class ObtenerAmbientesApiTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $nombres = array_column($data, 'nombre');
         $this->assertContains('TestActive', $nombres);
         $this->assertNotContains('TestInactive', $nombres);
@@ -130,9 +130,9 @@ final class ObtenerAmbientesApiTest extends TestCase
         // Assert
         $response->assertStatus(200);
         $data = $response->json('data');
-        
+
         $this->assertGreaterThanOrEqual(3, count($data));
-        
+
         // Verify IDs are in ascending order
         $ids = array_column($data, 'id');
         $sortedIds = $ids;

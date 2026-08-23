@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Tests\Feature\Core\Admin\Api;
 
+use App\Core\Admin\Application\Ports\Out\ITipoPersonalOutPort;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 /**
  * ObtenerTiposPersonalApiTest
- * 
+ *
  * Feature tests for GET /api/v1/admin/tipos-personal endpoint.
- * 
+ *
  * Tests API Contract:
  * - HTTP 200 response with data
  * - HTTP 429 rate limiting (60 req/min)
  * - Response structure validation
  * - Edge cases (empty data)
  * - Error scenarios
- * 
+ *
  * ✅ Feature Test Pattern:
  * - Uses RefreshDatabase
  * - Tests complete request/response flow
@@ -49,9 +50,9 @@ final class ObtenerTiposPersonalApiTest extends TestCase
                 'code',
                 'data' => [
                     'tiposPersonal' => [
-                        '*' => ['id', 'nombre']
-                    ]
-                ]
+                        '*' => ['id', 'nombre'],
+                    ],
+                ],
             ])
             ->assertJson([
                 'success' => true,
@@ -105,8 +106,8 @@ final class ObtenerTiposPersonalApiTest extends TestCase
                 'message' => 'Tipos de personal obtenidos exitosamente.',
                 'code' => 200,
                 'data' => [
-                    'tiposPersonal' => []
-                ]
+                    'tiposPersonal' => [],
+                ],
             ]);
     }
 
@@ -118,21 +119,21 @@ final class ObtenerTiposPersonalApiTest extends TestCase
             'sn_descripcion' => null,
             'ind_activo' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ], 'id_nu_tipo_personal');
         $id2 = \DB::table('tb_cat_tipo_personal')->insertGetId([
             'sn_nombre' => 'Primero',
             'sn_descripcion' => null,
             'ind_activo' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ], 'id_nu_tipo_personal');
         $id3 = \DB::table('tb_cat_tipo_personal')->insertGetId([
             'sn_nombre' => 'Segundo',
             'sn_descripcion' => null,
             'ind_activo' => true,
             'created_at' => now(),
-            'updated_at' => now()
+            'updated_at' => now(),
         ], 'id_nu_tipo_personal');
 
         // Act
@@ -152,7 +153,6 @@ final class ObtenerTiposPersonalApiTest extends TestCase
         $this->assertSame('Segundo', $tiposPersonal[2]['nombre']);
     }
 
-
     public function it_returns_correct_response_structure(): void
     {
         // Arrange
@@ -170,8 +170,8 @@ final class ObtenerTiposPersonalApiTest extends TestCase
                 'message',
                 'code',
                 'data' => [
-                    'tiposPersonal'
-                ]
+                    'tiposPersonal',
+                ],
             ]);
 
         $json = $response->json();
@@ -224,29 +224,29 @@ final class ObtenerTiposPersonalApiTest extends TestCase
 
     public function test_it_returns_500_when_database_connection_fails(): void
     {
-      // Arrange - simulate DB failure at the OutPort level
-      $this->mock(
-          \App\Core\Admin\Application\Ports\Out\ITipoPersonalOutPort::class,
-          function ($mock) {
-              $mock->shouldReceive('obtenerTodos')
-                  ->andThrow(new \RuntimeException('Database connection error'));
-          }
-      );
-  
-      // Act
-      $response = $this->getJson($this->endpoint);
-  
-      // Assert
-      $response->assertStatus(500)
-          ->assertJson([
-              'success' => false,
-              'code' => 500,
-          ])
-          ->assertJsonStructure([
-              'success',
-              'message',
-              'code',
-          ]);    
+        // Arrange - simulate DB failure at the OutPort level
+        $this->mock(
+            ITipoPersonalOutPort::class,
+            function ($mock) {
+                $mock->shouldReceive('obtenerTodos')
+                    ->andThrow(new \RuntimeException('Database connection error'));
+            }
+        );
+
+        // Act
+        $response = $this->getJson($this->endpoint);
+
+        // Assert
+        $response->assertStatus(500)
+            ->assertJson([
+                'success' => false,
+                'code' => 500,
+            ])
+            ->assertJsonStructure([
+                'success',
+                'message',
+                'code',
+            ]);
     }
 
     public function test_it_uses_named_route_api_admin_tipos_personal_index(): void
