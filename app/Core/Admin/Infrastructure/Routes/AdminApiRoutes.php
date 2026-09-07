@@ -2,6 +2,8 @@
 
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerAmbientesInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerBasesDatosInAdapter;
+use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerEsquemasInAdapter;
+use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerEsquemasPorHostnameInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerHostnamesInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPermisoInAdapter;
 use App\Core\Admin\Infrastructure\Adapters\In\Api\ObtenerTiposPersonalInAdapter;
@@ -49,6 +51,16 @@ Route::prefix('api/v1/admin')->group(function () {
     // Hostnames
     Route::get('/hostnames', ObtenerHostnamesInAdapter::class)
         ->name('api.admin.hostnames.index');
+
+    // Esquemas por Hostname
+    Route::get('/hostnames/{idHostname}/esquemas', ObtenerEsquemasPorHostnameInAdapter::class)
+        ->middleware('throttle:60,1')
+        ->name('api.admin.hostnames.esquemas.index');
+
+    // Esquemas
+    Route::get('/esquemas', ObtenerEsquemasInAdapter::class)
+        ->middleware('throttle:60,1')
+        ->name('api.admin.esquemas.index');
 
     // Add more admin routes here following the same pattern...
 
