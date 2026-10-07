@@ -57,9 +57,7 @@ class {{VerbSpanish}}{{NounSpanish}}InAdapter
             );
 
             // 4. Execute use case
-            \Log::info("Executing {{UseCase}}");
             ${{outDtoCamelCase}} = $this->{{useCaseCamelCase}}UseCase->{{useCaseMethod}}(${{inDtoCamelCase}});
-            \Log::info("{{UseCase}} executed successfully");
 
             // 5. Set up successful response
             $respuesta->setSuccess(true);

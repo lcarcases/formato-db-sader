@@ -348,6 +348,10 @@ Antes de finalizar, verificar que se generaron todos los artefactos necesarios:
 
 [APPLICATION_USECASE_EXAMPLES.md](/references/APPLICATION_USECASE_EXAMPLES.md)
 
+### Application Service (Optional)
+
+[APPLICATION_SERVICE_EXAMPLES.md](/references/APPLICATION_SERVICE_EXAMPLES.md)
+
 ### Step 6: Generate DTOs
 
 **6.1 InDto (Input from client)**
